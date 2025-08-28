@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Awesome Shop</title>
+    <!-- Use Inter font for a clean, modern look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN for easy styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SweetAlert2 CDN for beautiful pop-ups -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .page {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slider-image {
+            transition: opacity 1s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- Main Application Container -->
+    <div id="app" class="container mx-auto px-4 py-8 max-w-6xl">
+
+        <!-- Header -->
+        <header class="flex justify-center md:justify-between items-center mb-10">
+            <!-- Website Logo -->
+            <a href="#" id="home-logo" class="flex items-center space-x-2">
+                <img src="https://placehold.co/40x40/4f46e5/ffffff?text=S" alt="Shop Logo" class="h-10 w-10 rounded-full shadow-lg">
+                <h1 class="text-2xl font-extrabold text-gray-900 hidden md:block">My Awesome Shop</h1>
+            </a>
+            <p class="text-lg text-gray-600 hidden md:block">Discover quality products for a great price.</p>
+        </header>
+
+        <!-- Product List Page -->
+        <div id="product-list-page" class="page">
+            <!-- Hero Slider for a professional look -->
+            <div class="relative w-full h-80 overflow-hidden rounded-2xl mb-10 shadow-xl">
+                <div id="hero-slider-container" class="w-full h-full">
+                    <!-- Images will be dynamically inserted here by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Product cards will be dynamically inserted here by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Product Details Page (Initially Hidden) -->
+        <div id="product-details-page" class="page" style="display: none;">
+            <button id="back-to-products" class="mb-6 text-blue-600 hover:text-blue-800 transition-colors duration-200 flex items-center space-x-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span>Back to Products</span>
+            </button>
+            <div class="bg-white rounded-2xl shadow-lg p-8 flex flex-col lg:flex-row items-start gap-8">
+                <!-- Product Image Slider -->
+                <div class="lg:w-1/2 w-full">
+                    <div class="relative w-full overflow-hidden rounded-xl shadow-md mb-4">
+                        <img id="main-product-image" src="" alt="Main Product Image" class="w-full object-cover">
+                        <!-- Slider controls -->
+                        <div class="absolute inset-y-0 left-0 flex items-center">
+                            <button id="slider-prev" class="bg-black bg-opacity-50 text-white p-2 rounded-r-lg hover:bg-opacity-75 transition-opacity duration-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="absolute inset-y-0 right-0 flex items-center">
+                            <button id="slider-next" class="bg-black bg-opacity-50 text-white p-2 rounded-l-lg hover:bg-opacity-75 transition-opacity duration-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Image thumbnails for navigation -->
+                    <div id="thumbnails-container" class="flex justify-center gap-2 mt-4"></div>
+                </div>
+
+                <!-- Product Details -->
+                <div class="lg:w-1/2 w-full">
+                    <h2 id="details-title" class="text-4xl font-bold text-gray-900 mb-2"></h2>
+                    <p id="details-price" class="text-3xl font-semibold text-gray-700 mb-4"></p>
+                    <p id="details-description" class="text-gray-600 mb-6 leading-relaxed"></p>
+                    <button id="buy-now-button" class="bg-indigo-600 text-white font-semibold py-4 px-8 rounded-full hover:bg-indigo-700 transition-colors duration-200 w-full shadow-lg transform hover:scale-105">Buy Now</button>
+                    
+                    <!-- YouTube Video -->
+                    <div id="details-video-container" class="aspect-w-16 aspect-h-9 w-full mt-6">
+                        <iframe id="details-video" class="rounded-lg shadow-md w-full" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- More Product Details Section -->
+            <div id="more-details-section" class="mt-10 bg-white rounded-2xl shadow-lg p-8">
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">Product Overview</h3>
+                <p id="long-description" class="text-gray-600 leading-relaxed mb-6"></p>
+                <!-- This container now uses flexbox for vertical display and spacing -->
+                <div id="gallery-images-container" class="flex flex-col space-y-4"></div>
+            </div>
+        </div>
+
+        <!-- Shipping Page (Initially Hidden) -->
+        <div id="shipping-page" class="page" style="display: none;">
+            <button id="back-to-details" class="mb-6 text-blue-600 hover:text-blue-800 transition-colors duration-200 flex items-center space-x-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span>Back to Product</span>
+            </button>
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">Shipping Information</h2>
+
+                <div id="order-summary" class="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
+                    <p class="text-lg font-semibold text-gray-700 mb-2">Order Summary</p>
+                    <div class="flex justify-between items-center mb-1">
+                        <span id="summary-product-title" class="text-gray-600"></span>
+                        <span id="summary-product-price" class="font-medium text-gray-800"></span>
+                    </div>
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-gray-600">Shipping Charge:</span>
+                        <span id="shipping-charge" class="font-medium text-gray-800">৳0</span>
+                    </div>
+                    <div class="border-t border-gray-300 my-2"></div>
+                    <div class="flex justify-between items-center text-lg font-bold text-gray-900">
+                        <span>Total:</span>
+                        <span id="total-price"></span>
+                    </div>
+                </div>
+
+                <form id="shipping-form" class="space-y-4">
+                    <!-- Hidden fields to store product info -->
+                    <input type="hidden" id="product-title" name="product">
+                    <input type="hidden" id="product-price" name="price">
+
+                    <div class="flex flex-col">
+                        <label for="customer-name" class="text-gray-700 font-semibold mb-1">Name</label>
+                        <input type="text" id="customer-name" name="name" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" required>
+                    </div>
+
+                    <div class="flex flex-col">
+                        <label for="customer-phone" class="text-gray-700 font-semibold mb-1">Phone Number</label>
+                        <input type="tel" id="customer-phone" name="phone" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" required>
+                    </div>
+                    
+                    <div class="flex flex-col">
+                        <label for="home-address" class="text-gray-700 font-semibold mb-1">Home Address</label>
+                        <input type="text" id="home-address" name="address" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" required>
+                    </div>
+
+                    <div class="flex flex-col">
+                        <label for="thana-city" class="text-gray-700 font-semibold mb-1">Thana / City</label>
+                        <input type="text" id="thana-city" name="thana" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" required>
+                    </div>
+
+                    <div class="flex flex-col">
+                        <label for="district" class="text-gray-700 font-semibold mb-1">District</label>
+                        <input type="text" id="district" name="district" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" required>
+                    </div>
+
+                    <button type="submit" class="bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors duration-200 w-full shadow-lg">
+                        Place Order
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Helpline Icon (Now visible on all pages) -->
+    <div id="helpline-icon" class="fixed bottom-6 right-6 z-50 bg-indigo-600 text-white p-4 rounded-full shadow-lg cursor-pointer transition-transform duration-200 hover:scale-110">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.15-.181 2.333-.284 3.541-.284h.002c1.208 0 2.391.103 3.541.284a9.73 9.73 0 0 1 2.508 1.485c.66.43 1.258 1.054 1.776 1.832.518.778.942 1.636 1.258 2.569l-.004 1.011a8.498 8.498 0 0 0-.004 1.011c-.316.933-.74 1.791-1.258 2.569a9.73 9.73 0 0 1-1.776 1.832c-.66.43-1.258 1.054-1.776 1.832-.518-.778-.942-1.636-1.258-2.569l-.004-1.011a8.498 8.498 0 0 0-.004-1.011c-.316-.933-.74-1.791-1.258-2.569a9.73 9.73 0 0 1-2.508-1.485c-1.15-.181-2.333-.284-3.541-.284h-.002c-1.208 0-2.391-.103-3.541-.284a9.73 9.73 0 0 1-2.508-1.485c-.66-.43-1.258-1.054-1.776-1.832-.518-.778-.942-1.636-1.258-2.569l.004-1.011a8.498 8.498 0 0 0 .004-1.011c.316-.933.74-1.791 1.258-2.569a9.73 9.73 0 0 1 1.776-1.832c.66-.43 1.258-1.054 1.776-1.832-.518-.778-.942-1.636-1.258-2.569l-.004-1.011a8.498 8.498 0 0 0-.004-1.011c-.316-.933-.74-1.791-1.258-2.569a9.73 9.73 0 0 1-2.508-1.485" />
+        </svg>
+    </div>
+
+    <!-- Helpline Modal (Initially Hidden) -->
+    <div id="helpline-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 relative">
+            <button id="close-helpline-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Need Help?</h2>
+            
+            <form id="helpline-form" class="space-y-4">
+                <div class="flex flex-col">
+                    <label for="helpline-name" class="text-gray-700 font-semibold mb-1">Your Name</label>
+                    <input type="text" id="helpline-name" name="name" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" required>
+                </div>
+                <div class="flex flex-col">
+                    <label for="helpline-phone" class="text-gray-700 font-semibold mb-1">Your Phone Number</label>
+                    <input type="tel" id="helpline-phone" name="phone" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" required>
+                </div>
+                <div class="flex flex-col">
+                    <label for="helpline-message" class="text-gray-700 font-semibold mb-1">Your Message</label>
+                    <textarea id="helpline-message" name="message" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" required></textarea>
+                </div>
+                <button type="submit" class="bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors duration-200 w-full shadow-lg">
+                    Send Message
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // ======================================================================
+            // Configuration & Data
+            // ======================================================================
+            
+            // GOOGLE SHEET SETUP
+            // 1. Create a Google Sheet with two tabs: "Orders" and "Helpline".
+            // 2. Go to SheetDB.io (https://sheetdb.io/) and create a separate API for EACH tab.
+            // 3. Replace the placeholder URLs below with your actual API links.
+            const ORDERS_API_URL = 'https://sheetdb.io/api/v1/nmqeax1lwot8e';
+            const HELPLINE_API_URL = 'https://sheetdb.io/api/v1/pugr209fyko18';
+            
+            const PRODUCTS = [
+                {
+                    id: 'product1',
+                    name: 'G21 Gaming Trigger',
+                    price: 2500,
+                    description: 'Experience crystal-clear audio with our Luna Wireless Earbuds. Designed for comfort and durability, they offer a secure fit for all-day use. With seamless Bluetooth connectivity and a sleek charging case, your music and calls are always ready when you are.',
+                    longDescription: 'Our Luna Wireless Earbuds deliver a premium sound experience with powerful bass and crisp highs. The ergonomic design ensures they stay in place during your workouts or daily commute. The included charging case provides up to 24 hours of total playtime, and a quick 15-minute charge gives you 3 hours of listening. They are also IPX5 water-resistant, making them ideal for any weather.',
+                    images: [
+                        'assets/images/g21/main.jpg',
+                        'https://placehold.co/600x400/007bff/ffffff?text=Luna+Earbuds+2',
+                        'https://placehold.co/600x400/007bff/ffffff?text=Luna+Earbuds+3'
+                    ],
+                    galleryImages: [
+                        'https://placehold.co/800x600/007bff/ffffff?text=Lifestyle',
+                        'https://placehold.co/800x600/007bff/ffffff?text=In+Hand'
+                    ],
+                    videoUrl: 'https://www.youtube.com/embed/SjVv4vP7i8k' // Example YouTube video
+                },
+                {
+                    id: 'product2',
+                    name: 'Astro Smartwatch',
+                    price: 3800,
+                    description: 'Stay connected and healthy with the Astro Smartwatch. It features a vibrant AMOLED display and advanced health monitoring sensors, including heart rate and blood oxygen tracking. The lightweight design and durable band make it perfect for any adventure.',
+                    longDescription: 'The Astro Smartwatch is more than just a timepiece; it is your ultimate health and fitness companion. With over 100 sport modes, you can accurately track your activities and progress. The long-lasting battery keeps you going for days on a single charge. Receive call, text, and app notifications directly on your wrist, and control your music without touching your phone.',
+                    images: [
+                        'https://placehold.co/600x400/28a745/ffffff?text=Astro+Watch+1',
+                        'https://placehold.co/600x400/28a745/ffffff?text=Astro+Watch+2',
+                        'https://placehold.co/600x400/28a745/ffffff?text=Astro+Watch+3'
+                    ],
+                    galleryImages: [
+                        'https://placehold.co/800x600/28a745/ffffff?text=On+Wrist',
+                        'https://placehold.co/800x600/28a745/ffffff?text=UI+Screens'
+                    ],
+                    videoUrl: 'https://www.youtube.com/embed/1B1P_wS_0Lg' // Example YouTube video
+                },
+                {
+                    id: 'product3',
+                    name: 'Zenith Comfort Chair',
+                    price: 5400,
+                    description: 'Transform your workspace with the Zenith Comfort Chair. Its ergonomic design provides exceptional lumbar support and an adjustable headrest. The breathable mesh material keeps you cool, while the smooth-rolling casters allow for effortless movement.',
+                    longDescription: 'The Zenith Comfort Chair is engineered for maximum comfort and productivity. The adjustable features, including tilt tension, seat height, and armrest position, allow you to customize it to your body. Built with a sturdy steel frame and high-density foam, this chair is made to last. Say goodbye to back pain and hello to long, comfortable work sessions.',
+                    images: [
+                        'https://placehold.co/600x400/fd7e14/ffffff?text=Zenith+Chair+1',
+                        'https://placehold.co/600x400/fd7e14/ffffff?text=Zenith+Chair+2',
+                        'https://placehold.co/600x400/fd7e14/ffffff?text=Zenith+Chair+3'
+                    ],
+                    galleryImages: [
+                        'https://placehold.co/800x600/fd7e14/ffffff?text=In+Office',
+                        'https://placehold.co/800x600/fd7e14/ffffff?text=Ergonomic+Features'
+                    ],
+                    videoUrl: 'https://www.youtube.com/embed/n3oF59s04_s' // Example YouTube video
+                },
+            ];
+
+            const HERO_SLIDER_IMAGES = [
+                'https://placehold.co/1200x320/007bff/ffffff?text=Shop+Our+Latest+Collection',
+                'https://placehold.co/1200x320/28a745/ffffff?text=Quality+and+Style+in+Every+Item',
+                'https://placehold.co/1200x320/fd7e14/ffffff?text=Discover+Your+New+Favorite+Product'
+            ];
+
+            // ======================================================================
+            // DOM Elements
+            // ======================================================================
+            const app = document.getElementById('app');
+            const productListPage = document.getElementById('product-list-page');
+            const productDetailsPage = document.getElementById('product-details-page');
+            const shippingPage = document.getElementById('shipping-page');
+            const homeLogoBtn = document.getElementById('home-logo');
+            const backToProductsBtn = document.getElementById('back-to-products');
+            const backToDetailsBtn = document.getElementById('back-to-details');
+            const buyNowBtn = document.getElementById('buy-now-button');
+            const shippingForm = document.getElementById('shipping-form');
+            const thanaCityInput = document.getElementById('thana-city');
+            const districtInput = document.getElementById('district');
+            const shippingChargeSpan = document.getElementById('shipping-charge');
+            const totalPriceSpan = document.getElementById('total-price');
+
+            // Product Details Page Elements
+            const mainProductImage = document.getElementById('main-product-image');
+            const sliderPrevBtn = document.getElementById('slider-prev');
+            const sliderNextBtn = document.getElementById('slider-next');
+            const thumbnailsContainer = document.getElementById('thumbnails-container');
+            const detailsTitle = document.getElementById('details-title');
+            const detailsPrice = document.getElementById('details-price');
+            const detailsDescription = document.getElementById('details-description');
+            const detailsVideo = document.getElementById('details-video');
+            const longDescription = document.getElementById('long-description');
+            const galleryImagesContainer = document.getElementById('gallery-images-container');
+
+            // Helpline Modal Elements
+            const helplineIcon = document.getElementById('helpline-icon');
+            const helplineModal = document.getElementById('helpline-modal');
+            const closeHelplineModalBtn = document.getElementById('close-helpline-modal');
+            const helplineForm = document.getElementById('helpline-form');
+
+            let currentProduct = null;
+            let currentShippingCost = 0;
+            let currentImageIndex = 0;
+            let heroSliderIndex = 0;
+            let heroSliderInterval;
+
+            // ======================================================================
+            // Helper Functions
+            // ======================================================================
+
+            /**
+             * Initializes and starts the automatic hero slider.
+             */
+            const startHeroSlider = () => {
+                const sliderContainer = document.getElementById('hero-slider-container');
+                sliderContainer.innerHTML = HERO_SLIDER_IMAGES.map((img, index) => `
+                    <img src="${img}" class="slider-image absolute top-0 left-0 w-full h-full object-cover rounded-2xl ${index === 0 ? 'opacity-100' : 'opacity-0'}" alt="Hero Slide ${index + 1}">
+                `).join('');
+
+                const images = sliderContainer.querySelectorAll('.slider-image');
+                heroSliderInterval = setInterval(() => {
+                    images[heroSliderIndex].classList.remove('opacity-100');
+                    images[heroSliderIndex].classList.add('opacity-0');
+                    heroSliderIndex = (heroSliderIndex + 1) % images.length;
+                    images[heroSliderIndex].classList.remove('opacity-0');
+                    images[heroSliderIndex].classList.add('opacity-100');
+                }, 3000);
+            };
+
+            /**
+             * Renders the list of products on the product list page.
+             */
+            const renderProductList = () => {
+                const productGrid = document.querySelector('#product-list-page > div.grid');
+                productGrid.innerHTML = ''; // Clear previous content
+                PRODUCTS.forEach(product => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-shadow duration-300 overflow-hidden';
+                    card.innerHTML = `
+                        <img src="${product.images[0]}" alt="${product.name}" class="w-full h-64 object-cover object-center rounded-t-2xl cursor-pointer">
+                        <div class="p-6">
+                            <h2 class="text-xl font-semibold text-gray-900 mb-2 cursor-pointer">${product.name}</h2>
+                            <p class="text-gray-600 text-base mb-4">${product.description.substring(0, 100)}...</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xl font-bold text-indigo-600">৳${product.price}</span>
+                                <button class="buy-now-card-button bg-indigo-500 text-white font-semibold py-2 px-4 rounded-full text-sm hover:bg-indigo-600 transition-colors duration-200" data-product-id="${product.id}">Buy Now</button>
+                            </div>
+                        </div>
+                    `;
+                    // Add event listener to the card (excluding the button)
+                    card.querySelector('img').addEventListener('click', () => showProductDetails(product.id));
+                    card.querySelector('h2').addEventListener('click', () => showProductDetails(product.id));
+                    // Add event listener to the Buy Now button on the card
+                    card.querySelector('.buy-now-card-button').addEventListener('click', (e) => showShippingPage(e, product.id));
+
+                    productGrid.appendChild(card);
+                });
+            };
+
+            /**
+             * Updates the main product image and thumbnail highlight.
+             */
+            const updateMainImage = () => {
+                const images = currentProduct.images;
+                if (!images || images.length === 0) return;
+                mainProductImage.src = images[currentImageIndex];
+
+                // Update thumbnail styling
+                document.querySelectorAll('.thumbnail-image').forEach((thumb, index) => {
+                    if (index === currentImageIndex) {
+                        thumb.classList.add('ring-4', 'ring-indigo-500', 'ring-offset-2');
+                    } else {
+                        thumb.classList.remove('ring-4', 'ring-indigo-500', 'ring-offset-2');
+                    }
+                });
+            };
+
+            /**
+             * Navigates the image slider.
+             * @param {number} direction - 1 for next, -1 for previous.
+             */
+            const navigateSlider = (direction) => {
+                const images = currentProduct.images;
+                if (!images || images.length <= 1) return;
+                currentImageIndex = (currentImageIndex + direction + images.length) % images.length;
+                updateMainImage();
+            };
+
+            /**
+             * Shows the product details page and populates it with product info.
+             * @param {string} productId - The ID of the product to display.
+             */
+            const showProductDetails = (productId) => {
+                currentProduct = PRODUCTS.find(p => p.id === productId);
+                if (!currentProduct) return;
+                
+                // Reset image slider to first image
+                currentImageIndex = 0;
+                updateMainImage();
+
+                // Populate product details
+                detailsTitle.textContent = currentProduct.name;
+                detailsPrice.textContent = `৳${currentProduct.price}`;
+                detailsDescription.textContent = currentProduct.description;
+                detailsVideo.src = currentProduct.videoUrl;
+
+                // Populate more details section
+                longDescription.textContent = currentProduct.longDescription;
+                galleryImagesContainer.innerHTML = '';
+                currentProduct.galleryImages.forEach(src => {
+                    const img = document.createElement('img');
+                    img.src = src;
+                    img.alt = currentProduct.name + ' Gallery Image';
+                    img.className = 'w-full h-auto rounded-xl shadow-md object-cover';
+                    galleryImagesContainer.appendChild(img);
+                });
+
+                // Render thumbnails for the slider
+                thumbnailsContainer.innerHTML = '';
+                currentProduct.images.forEach((src, index) => {
+                    const thumb = document.createElement('img');
+                    thumb.src = src;
+                    thumb.alt = 'Thumbnail ' + (index + 1);
+                    thumb.className = 'thumbnail-image w-20 h-16 object-cover rounded-lg shadow-sm cursor-pointer transition-transform duration-200 hover:scale-110';
+                    thumb.addEventListener('click', () => {
+                        currentImageIndex = index;
+                        updateMainImage();
+                    });
+                    thumbnailsContainer.appendChild(thumb);
+                });
+                
+                // Ensure the first thumbnail is highlighted
+                updateMainImage();
+
+                // Show the details page and hide others
+                productListPage.style.display = 'none';
+                shippingPage.style.display = 'none';
+                productDetailsPage.style.display = 'block';
+            };
+            
+            /**
+             * Shows the shipping page and pre-populates the form.
+             * @param {Event} event - The click event.
+             * @param {string} [productId] - Optional product ID from the card button.
+             */
+            const showShippingPage = (event, productId = null) => {
+                if (productId) {
+                    currentProduct = PRODUCTS.find(p => p.id === productId);
+                }
+                
+                if (!currentProduct) return;
+
+                // Pre-populate form fields
+                document.getElementById('product-title').value = currentProduct.name;
+                document.getElementById('product-price').value = currentProduct.price;
+
+                // Pre-populate summary
+                document.getElementById('summary-product-title').textContent = currentProduct.name;
+                document.getElementById('summary-product-price').textContent = `৳${currentProduct.price}`;
+
+                // Recalculate shipping and total
+                calculateShipping();
+
+                // Show the shipping page and hide others
+                productDetailsPage.style.display = 'none';
+                productListPage.style.display = 'none';
+                shippingPage.style.display = 'block';
+            };
+
+            /**
+             * Calculates the shipping cost based on the district and updates the total.
+             */
+            const calculateShipping = () => {
+                if (!currentProduct) return;
+                
+                const shippingRate = thanaCityInput.value.toLowerCase().includes('dhaka') || districtInput.value.toLowerCase().includes('dhaka') ? 80 : 120;
+                currentShippingCost = shippingRate;
+
+                shippingChargeSpan.textContent = `৳${currentShippingCost}`;
+                const total = currentProduct.price + currentShippingCost;
+                totalPriceSpan.textContent = `৳${total}`;
+            };
+            
+            /**
+             * Handles form submission and sends order data to Google Sheet.
+             * @param {Event} event - The form submission event.
+             */
+            const placeOrder = async (event) => {
+                event.preventDefault();
+
+                if (ORDERS_API_URL.includes('YOUR_ORDERS_API_URL')) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Configuration Error',
+                        text: 'Please configure your SheetDB.io API URL for orders first.'
+                    });
+                    return;
+                }
+
+                const formData = new FormData(shippingForm);
+                const orderData = {
+                    product: formData.get('product'),
+                    name: formData.get('name'),
+                    phone: formData.get('phone'),
+                    address: formData.get('address'),
+                    thana: formData.get('thana'),
+                    district: formData.get('district'),
+                    price: formData.get('price'),
+                    shipping: currentShippingCost,
+                    total: parseInt(formData.get('price')) + currentShippingCost
+                };
+
+                try {
+                    const response = await fetch(ORDERS_API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ data: orderData })
+                    });
+
+                    if (response.ok) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Order Placed!',
+                            text: 'We will confirm your order by phone call soon. Thank you for staying with us.'
+                        });
+                        shippingForm.reset();
+                    } else {
+                        const errorData = await response.json();
+                        console.error('API Error:', errorData);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Order Failed',
+                            text: 'Failed to place order. Please try again.'
+                        });
+                    }
+                } catch (error) {
+                    console.error('Fetch Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'An error occurred',
+                        text: 'An error occurred. Check the console for details.'
+                    });
+                }
+            };
+            
+            /**
+             * Handles form submission for the helpline form.
+             * @param {Event} event - The form submission event.
+             */
+            const sendMessage = async (event) => {
+                event.preventDefault();
+
+                if (HELPLINE_API_URL.includes('YOUR_HELPLINE_API_URL')) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Configuration Error',
+                        text: 'Please configure your SheetDB.io API URL for the helpline form first.'
+                    });
+                    return;
+                }
+
+                const formData = new FormData(helplineForm);
+                const messageData = {
+                    name: formData.get('name'),
+                    phone: formData.get('phone'),
+                    message: formData.get('message')
+                };
+
+                try {
+                    const response = await fetch(HELPLINE_API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ data: messageData })
+                    });
+
+                    if (response.ok) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Message Sent!',
+                            text: 'Your message was sent successfully. We will contact you soon.'
+                        });
+                        helplineForm.reset();
+                        helplineModal.classList.add('hidden');
+                    } else {
+                        const errorData = await response.json();
+                        console.error('API Error:', errorData);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed to Send',
+                            text: 'Failed to send message. Please try again.'
+                        });
+                    }
+                } catch (error) {
+                    console.error('Fetch Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'An error occurred',
+                        text: 'An error occurred. Check the console for details.'
+                    });
+                }
+            };
+
+            // ======================================================================
+            // Event Listeners
+            // ======================================================================
+            homeLogoBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                productDetailsPage.style.display = 'none';
+                shippingPage.style.display = 'none';
+                productListPage.style.display = 'block';
+            });
+            backToProductsBtn.addEventListener('click', () => {
+                productDetailsPage.style.display = 'none';
+                productListPage.style.display = 'block';
+            });
+            backToDetailsBtn.addEventListener('click', () => {
+                shippingPage.style.display = 'none';
+                productDetailsPage.style.display = 'block';
+            });
+            buyNowBtn.addEventListener('click', showShippingPage);
+            shippingForm.addEventListener('submit', placeOrder);
+            thanaCityInput.addEventListener('input', calculateShipping);
+            districtInput.addEventListener('input', calculateShipping);
+            sliderNextBtn.addEventListener('click', () => navigateSlider(1));
+            sliderPrevBtn.addEventListener('click', () => navigateSlider(-1));
+
+            // Helpline Modal Event Listeners
+            helplineIcon.addEventListener('click', () => {
+                helplineModal.classList.remove('hidden');
+            });
+            closeHelplineModalBtn.addEventListener('click', () => {
+                helplineModal.classList.add('hidden');
+            });
+            helplineForm.addEventListener('submit', sendMessage);
+            
+            // Initial render and setup
+            renderProductList();
+            startHeroSlider();
+        });
+    </script>
+
+</body>
+</html>
