@@ -46,23 +46,28 @@
 
     /* Product cards */
     .product-card{transition:all .4s cubic-bezier(.4,0,.2,1);overflow:hidden;background:var(--color-background);border:1px solid var(--color-border);border-radius:16px}
-    .product-card:hover{transform:translateY(-12px) scale(1.03);box-shadow:0 30px 60px rgba(0,0,0,.15);border-color:var(--color-primary)}
-    .dark .product-card:hover{box-shadow:0 30px 60px rgba(34,197,94,.2)}
-    .product-image{position:relative;overflow:hidden;height:256px;border-radius:16px 16px 0 0}
-    .product-card:hover .product-image img{transform:scale(1.15)}
-    .product-image img{transition:transform .6s ease;width:100%;height:100%;object-fit:cover}
-    .product-image::after{content:'';position:absolute;inset:0;background:linear-gradient(45deg,rgba(21,128,61,.8),rgba(34,197,94,.6));opacity:0;transition:opacity .3s ease;display:flex;align-items:center;justify-content:center}
-    .product-card:hover .product-image::after{opacity:1}
+    .product-card:hover{transform:translateY(-10px) scale(1.02);box-shadow:0 20px 40px rgba(0,0,0,.15);border-color:var(--color-primary)}
+    .dark .product-card:hover{box-shadow:0 20px 40px rgba(34,197,94,.2)}
 
-    /* Top bar */
+    /* Product image wrapper: use object-contain + white surface for true product view */
+    .product-image{position:relative;overflow:hidden;border-radius:16px 16px 0 0;background:#fff}
+    .dark .product-image{background:#0b0f1a}
+    /* Responsive heights so images show fully without weird crop */
+    .product-image{height:14rem}        /* h-56 mobile */
+    @media (min-width:640px){ .product-image{height:16rem} } /* sm:h-64 */
+    @media (min-width:1024px){ .product-image{height:18rem} }/* lg:h-72 */
+
+    /* Keep zoom, remove color overlay entirely */
+    .product-image img{transition:transform .6s ease;width:100%;height:100%;object-fit:contain;object-position:center}
+    .product-card:hover .product-image img{transform:scale(1.08)}
+    /* IMPORTANT: removed colored ::after overlay */
+
+    /* Top bars */
     .nav-top-bar{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(0,0,0,.1)}
     .dark .nav-top-bar{background:rgba(15,23,42,.95);border-bottom:1px solid rgba(255,255,255,.1)}
-    @media (max-width:768px){
-      .nav-top-bar{flex-direction:column;gap:8px;text-align:center}
-      .nav-top-bar .flex:first-child{flex-direction:column;gap:4px}
-      .nav-top-bar .flex:first-child>*{font-size:12px}
-      .nav-top-bar .flex:last-child{justify-content:center}
-    }
+    /* Mobile compact bar: tiny height, single row */
+    .nav-mobile{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(0,0,0,.08)}
+    .dark .nav-mobile{background:rgba(15,23,42,.95);border-bottom:1px solid rgba(255,255,255,.1)}
 
     /* Buttons */
     .btn-primary{background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:var(--color-primary-foreground);border:none;padding:12px 24px;border-radius:12px;font-weight:600;transition:all .3s ease;box-shadow:0 4px 15px rgba(21,128,61,.3)}
@@ -82,28 +87,77 @@
     .badge{background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:var(--color-primary-foreground);border-radius:9999px}
 
     /* Toggle */
-    .theme-toggle{position:relative;width:60px;height:30px;background:var(--color-muted);border-radius:15px;cursor:pointer;transition:all .3s ease;border:2px solid var(--color-border)}
-    .theme-toggle::before{content:'';position:absolute;top:2px;left:2px;width:22px;height:22px;background:var(--color-primary);border-radius:50%;transition:all .3s ease;box-shadow:0 2px 4px rgba(0,0,0,.2)}
-    .dark .theme-toggle::before{transform:translateX(28px)}
+    .theme-toggle{position:relative;width:56px;height:28px;background:var(--color-muted);border-radius:14px;cursor:pointer;transition:all .3s ease;border:2px solid var(--color-border)}
+    .theme-toggle::before{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;background:var(--color-primary);border-radius:50%;transition:all .3s ease;box-shadow:0 2px 4px rgba(0,0,0,.2)}
+    .dark .theme-toggle::before{transform:translateX(26px)}
 
     .hover-lift{transition:transform .3s ease,box-shadow .3s ease}
     .hover-lift:hover{transform:translateY(-8px);box-shadow:0 25px 50px rgba(0,0,0,.15)}
     .pulse-animation{animation:pulse 2s infinite}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+    @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: .7; }
+    }
+
+    /* DETAILS PAGE IMAGE: contain-fit with generous height */
+    .details-main-img{
+    width:100%;
+    height:22rem;
+    object-fit:contain;
+    object-position:center;
+    background:#fff;
+    border-radius:1rem;
+    }
+
+    @media (min-width:640px){ .details-main-img{height:26rem} }
+    @media (min-width:1024px){ .details-main-img{height:28rem} }
+
+    /* Thumbnails: bigger for touch */
+    .thumb{width:5rem;height:4rem}
+    @media (min-width:640px){ .thumb{width:6rem;height:4.5rem} }
+
+    /* HERO: responsive heights */
+    .hero-h{height:13rem}
+    @media (min-width:640px){ .hero-h{height:18rem} }
+    @media (min-width:1024px){ .hero-h{height:24rem} }
   </style>
 </head>
 <body class="light">
 
-  <!-- NAV -->
-  <nav class="glass-effect sticky top-0 z-40 py-2">
+  <!-- MOBILE COMPACT TOP BAR (shows only on < md) -->
+  <div class="nav-mobile md:hidden sticky top-0 z-50">
+    <div class="mx-auto px-3 py-2 flex items-center justify-between">
+      <a href="#" id="home-logo-mobile" class="flex items-center space-x-2">
+        <div class="w-9 h-9 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] rounded-full flex items-center justify-center glow-effect">
+          <i class="fas fa-gamepad text-[var(--color-primary-foreground)] text-sm"></i>
+        </div>
+        <span class="font-extrabold text-lg gradient-text">Trustiva</span>
+      </a>
+      <div class="flex items-center gap-3">
+        <a href="tel:01758649737" class="px-2 py-1 rounded-full border border-[var(--color-border)] text-sm hover:bg-[var(--color-muted)]">
+          <i class="fas fa-phone mr-1"></i> Call
+        </a>
+        <a href="mailto:sifatmahmud2532@gmail.com" class="p-2 rounded-full border border-[var(--color-border)]" title="Email">
+          <i class="fas fa-envelope"></i>
+        </a>
+        <a href="https://www.facebook.com/trustivagaming" target="_blank" class="p-2 rounded-full border border-[var(--color-border)]" title="Facebook">
+          <i class="fab fa-facebook"></i>
+        </a>
+        <div class="theme-toggle" id="theme-toggle-mobile" title="Toggle Dark/Light"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESKTOP/TABLET NAV (hidden on mobile) -->
+  <nav class="glass-effect sticky top-0 z-40 py-2 hidden md:block">
     <div class="container mx-auto px-4">
-      <div class="nav-top-bar flex justify-between items-center text-sm py-3 px-4 rounded-lg mb-2">
+      <div class="nav-top-bar flex justify-between items-center text-sm py-2 px-4 rounded-lg mb-2">
         <div class="flex items-center space-x-6 text-muted-foreground">
           <a href="tel:01758649737" class="flex items-center hover:text-[var(--color-primary)] transition-colors">
-            <i class="fas fa-phone mr-2"></i><span class="hidden sm:inline">01758649737</span><span class="sm:hidden">Call</span>
+            <i class="fas fa-phone mr-2"></i><span>01758649737</span>
           </a>
           <a href="mailto:sifatmahmud2532@gmail.com" class="flex items-center hover:text-[var(--color-primary)] transition-colors">
-            <i class="fas fa-envelope mr-2"></i><span class="hidden sm:inline">sifatmahmud2532@gmail.com</span><span class="sm:hidden">Email</span>
+            <i class="fas fa-envelope mr-2"></i><span>sifatmahmud2532@gmail.com</span>
           </a>
           <span class="hidden lg:flex items-center"><i class="fas fa-map-marker-alt mr-2"></i> Puran Paltan, Dhaka 1000</span>
         </div>
@@ -129,73 +183,65 @@
             <a href="#youtube-section" class="hover:text-[var(--color-primary)] transition-colors font-medium"><i class="fab fa-youtube mr-2"></i> Videos</a>
             <a href="#facebook-section" class="hover:text-[var(--color-primary)] transition-colors font-medium"><i class="fab fa-facebook mr-2"></i> Updates</a>
           </div>
-          <div class="theme-toggle" id="theme-toggle" title="Toggle Dark/Light Mode">
-            <i class="fas fa-sun absolute left-1 top-1 text-xs text-yellow-500"></i>
-            <i class="fas fa-moon absolute right-1 top-1 text-xs text-blue-300"></i>
-          </div>
+          <div class="theme-toggle" id="theme-toggle" title="Toggle Dark/Light Mode"></div>
         </div>
       </div>
     </div>
   </nav>
 
   <!-- APP -->
-  <div id="app" class="container mx-auto px-4 py-8 max-w-7xl">
+  <div id="app" class="container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-7xl">
 
     <!-- PRODUCT LIST -->
     <div id="product-list-page" class="page">
-      <div class="text-center mb-12">
-        <h2 class="text-5xl font-bold gradient-text mb-4">Premium Gaming Accessories</h2>
-        <p class="text-xl subtle max-w-2xl mx-auto">Elevate your gaming experience with our professional-grade controllers and accessories</p>
+      <div class="text-center mb-8 sm:mb-12">
+        <h2 class="text-3xl sm:text-5xl font-extrabold gradient-text mb-3 sm:mb-4">Premium Gaming Accessories</h2>
+        <p class="text-base sm:text-xl subtle max-w-2xl mx-auto">Elevate your gaming experience with our professional-grade controllers and accessories</p>
       </div>
 
       <!-- HERO SLIDER -->
-      <div class="relative w-full h-96 overflow-hidden rounded-3xl mb-16 shadow-2xl">
+      <div class="relative w-full hero-h overflow-hidden rounded-2xl sm:rounded-3xl mb-8 sm:mb-16 shadow-2xl">
         <div id="hero-slider-container" class="w-full h-full"></div>
-        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
-          <div class="w-3 h-3 bg-white rounded-full opacity-50"></div>
-          <div class="w-3 h-3 bg-white rounded-full opacity-50"></div>
-          <div class="w-3 h-3 bg-white rounded-full opacity-100"></div>
-        </div>
       </div>
 
       <!-- PRODUCTS -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-16"></div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8 mb-12 sm:mb-16"></div>
 
       <!-- SOCIAL -->
-      <div id="social-section" class="glass-effect rounded-3xl p-8 mb-16">
-        <div class="text-center mb-8">
-          <h3 class="text-3xl font-bold gradient-text mb-4">Connect With Us</h3>
-          <p class="subtle text-lg">Stay updated with our latest products and gaming content</p>
+      <div id="social-section" class="glass-effect rounded-2xl sm:rounded-3xl p-5 sm:p-8 mb-12 sm:mb-16">
+        <div class="text-center mb-6 sm:mb-8">
+          <h3 class="text-2xl sm:text-3xl font-bold gradient-text mb-3 sm:mb-4">Connect With Us</h3>
+          <p class="subtle text-base sm:text-lg">Stay updated with our latest products and gaming content</p>
         </div>
 
-        <div class="grid md:grid-cols-3 gap-8">
-          <div class="glass-effect rounded-2xl p-6 text-center hover-lift border border-orange-200 dark:border-orange-800">
-            <div class="w-20 h-20 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4 glow-effect">
-              <i class="fab fa-shopify text-white text-3xl"></i>
+        <div class="grid md:grid-cols-3 gap-5 sm:gap-8">
+          <div class="glass-effect rounded-2xl p-5 text-center hover-lift border border-orange-200 dark:border-orange-800">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4 glow-effect">
+              <i class="fab fa-shopify text-white text-2xl sm:text-3xl"></i>
             </div>
-            <h4 class="text-xl font-bold heading mb-3">Daraz Store</h4>
+            <h4 class="text-lg sm:text-xl font-bold heading mb-2">Daraz Store</h4>
             <p class="subtle mb-4">Shop with fast delivery and secure payment options</p>
             <a href="https://www.daraz.com.bd/shop/trustiva" target="_blank" class="btn-primary inline-flex items-center">
               <i class="fab fa-shopify mr-2"></i> Visit Store
             </a>
           </div>
 
-          <div class="glass-effect rounded-2xl p-6 text-center hover-lift border border-blue-200 dark:border-blue-800">
-            <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 glow-effect">
-              <i class="fab fa-facebook text-white text-3xl"></i>
+          <div class="glass-effect rounded-2xl p-5 text-center hover-lift border border-blue-200 dark:border-blue-800">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 glow-effect">
+              <i class="fab fa-facebook text-white text-2xl sm:text-3xl"></i>
             </div>
-            <h4 class="text-xl font-bold heading mb-3">Facebook Page</h4>
+            <h4 class="text-lg sm:text-xl font-bold heading mb-2">Facebook Page</h4>
             <p class="subtle mb-4">Get product updates and exclusive offers</p>
             <a href="https://www.facebook.com/trustivagaming" target="_blank" class="btn-primary inline-flex items-center">
               <i class="fab fa-facebook mr-2"></i> Follow Us
             </a>
           </div>
 
-          <div class="glass-effect rounded-2xl p-6 text-center hover-lift border border-pink-200 dark:border-pink-800">
-            <div class="w-20 h-20 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 glow-effect">
-              <i class="fab fa-instagram text-white text-3xl"></i>
+          <div class="glass-effect rounded-2xl p-5 text-center hover-lift border border-pink-200 dark:border-pink-800">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 glow-effect">
+              <i class="fab fa-instagram text-white text-2xl sm:text-3xl"></i>
             </div>
-            <h4 class="text-xl font-bold heading mb-3">Instagram</h4>
+            <h4 class="text-lg sm:text-xl font-bold heading mb-2">Instagram</h4>
             <p class="subtle mb-4">Watch new gadget videos and gaming content</p>
             <a href="https://www.instagram.com/trustivagaming" target="_blank" class="btn-primary inline-flex items-center">
               <i class="fab fa-instagram mr-2"></i> Follow Us
@@ -205,20 +251,20 @@
       </div>
 
       <!-- YOUTUBE -->
-      <div id="youtube-section" class="glass-effect rounded-3xl p-8 mb-16">
-        <div class="text-center mb-8">
-          <h3 class="text-3xl font-bold gradient-text mb-4"><i class="fab fa-youtube text-red-500 mr-3"></i>Gaming Tutorials & Reviews</h3>
-          <p class="subtle text-lg">Learn how to use our products and see detailed reviews</p>
+      <div id="youtube-section" class="glass-effect rounded-2xl sm:rounded-3xl p-5 sm:p-8 mb-12 sm:mb-16">
+        <div class="text-center mb-6 sm:mb-8">
+          <h3 class="text-2xl sm:text-3xl font-bold gradient-text mb-3 sm:mb-4"><i class="fab fa-youtube text-red-500 mr-3"></i>Gaming Tutorials & Reviews</h3>
+          <p class="subtle text-base sm:text-lg">Learn how to use our products and see detailed reviews</p>
         </div>
 
-        <div class="grid md:grid-cols-2 gap-8 items-center">
+        <div class="grid md:grid-cols-2 gap-6 sm:gap-8 items-center">
           <div class="aspect-video rounded-2xl overflow-hidden shadow-2xl">
             <iframe width="100%" height="100%" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Trustiva Gaming Setup Tutorial" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="rounded-2xl"></iframe>
           </div>
-          <div class="space-y-6">
-            <h4 class="text-2xl font-bold heading">Subscribe for Latest Content</h4>
-            <p class="subtle text-lg">Get notified about new product tutorials, gaming tips, and exclusive reviews.</p>
-            <div class="flex flex-col sm:flex-row gap-4">
+          <div class="space-y-5 sm:space-y-6">
+            <h4 class="text-xl sm:text-2xl font-bold heading">Subscribe for Latest Content</h4>
+            <p class="subtle text-base sm:text-lg">Get notified about new product tutorials, gaming tips, and exclusive reviews.</p>
+            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <a href="https://www.youtube.com/@trustivagaming?sub_confirmation=1" target="_blank" class="btn-primary inline-flex items-center justify-center">
                 <i class="fab fa-youtube mr-2"></i> Subscribe Now
               </a>
@@ -235,32 +281,32 @@
       </div>
 
       <!-- FACEBOOK -->
-      <div id="facebook-section" class="glass-effect rounded-3xl p-8 mb-16">
-        <div class="text-center mb-8">
-          <h3 class="text-3xl font-bold gradient-text mb-4"><i class="fab fa-facebook text-blue-500 mr-3"></i>Join Our Gaming Community</h3>
-          <p class="subtle text-lg">Stay connected with fellow gamers and get exclusive updates</p>
+      <div id="facebook-section" class="glass-effect rounded-2xl sm:rounded-3xl p-5 sm:p-8 mb-12 sm:mb-16">
+        <div class="text-center mb-6 sm:mb-8">
+          <h3 class="text-2xl sm:text-3xl font-bold gradient-text mb-3 sm:mb-4"><i class="fab fa-facebook text-blue-500 mr-3"></i>Join Our Gaming Community</h3>
+          <p class="subtle text-base sm:text-lg">Stay connected with fellow gamers and get exclusive updates</p>
         </div>
 
-        <div class="grid md:grid-cols-2 gap-8 items-center">
-          <div class="space-y-6">
-            <h4 class="text-2xl font-bold heading">Get Exclusive Updates</h4>
-            <p class="subtle text-lg">Be the first to know about new product launches, special offers, and gaming events.</p>
-            <div class="space-y-4">
+        <div class="grid md:grid-cols-2 gap-6 sm:gap-8 items-center">
+          <div class="space-y-5 sm:space-y-6">
+            <h4 class="text-xl sm:text-2xl font-bold heading">Get Exclusive Updates</h4>
+            <p class="subtle text-base sm:text-lg">Be the first to know about new product launches, special offers, and gaming events.</p>
+            <div class="space-y-3 sm:space-y-4">
               <div class="flex items-center space-x-3"><i class="fas fa-check-circle text-[var(--color-primary)]"></i><span class="heading">New product announcements</span></div>
               <div class="flex items-center space-x-3"><i class="fas fa-check-circle text-[var(--color-primary)]"></i><span class="heading">Exclusive discount codes</span></div>
               <div class="flex items-center space-x-3"><i class="fas fa-check-circle text-[var(--color-primary)]"></i><span class="heading">Gaming tips and tricks</span></div>
             </div>
-            <div class="flex flex-col sm:flex-row gap-4">
+            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <a href="https://www.facebook.com/trustivagaming" target="_blank" class="btn-primary inline-flex items-center justify-center"><i class="fab fa-facebook mr-2"></i> Follow Page</a>
               <a href="https://www.facebook.com/trustivagaming/posts" target="_blank" class="border-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 inline-flex items-center justify-center"><i class="fas fa-newspaper mr-2"></i> View Posts</a>
             </div>
           </div>
 
           <div class="glass-effect rounded-2xl p-6 text-center">
-            <div class="w-24 h-24 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 glow-effect">
-              <i class="fab fa-facebook text-white text-4xl"></i>
+            <div class="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 glow-effect">
+              <i class="fab fa-facebook text-white text-3xl sm:text-4xl"></i>
             </div>
-            <h5 class="text-xl font-bold heading mb-2">Trustiva Gaming</h5>
+            <h5 class="text-lg sm:text-xl font-bold heading mb-2">Trustiva Gaming</h5>
             <p class="subtle mb-4">Official Facebook Page</p>
             <div class="flex justify-center space-x-6 text-sm subtle">
               <span class="flex items-center"><i class="fas fa-thumbs-up mr-2"></i> 850+ Likes</span>
@@ -273,63 +319,63 @@
 
     <!-- PRODUCT DETAILS -->
     <div id="product-details-page" class="page" style="display:none;">
-      <button id="back-to-products" class="mb-6 surface px-4 py-2 hover:shadow transition flex items-center space-x-2">
+      <button id="back-to-products" class="mb-4 sm:mb-6 surface px-4 py-2 hover:shadow transition flex items-center space-x-2">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
         <span>Back to Products</span>
       </button>
 
-      <div class="card-glass rounded-3xl shadow-2xl p-8 flex flex-col lg:flex-row items-start gap-8">
+      <div class="card-glass rounded-2xl sm:rounded-3xl shadow-2xl p-5 sm:p-8 flex flex-col lg:flex-row items-start gap-6 sm:gap-8">
         <!-- Image slider -->
         <div class="lg:w-1/2 w-full">
-          <div class="relative w-full overflow-hidden rounded-2xl shadow-lg mb-4 surface">
-            <img id="main-product-image" src="/placeholder.svg" alt="Main Product Image" class="w-full h-96 object-cover"/>
+          <div class="relative w-full overflow-hidden rounded-xl sm:rounded-2xl shadow-lg mb-3 sm:mb-4" style="background:#fff">
+            <img id="main-product-image" src="/placeholder.svg" alt="Main Product Image" class="details-main-img"/>
             <div class="absolute inset-y-0 left-0 flex items-center">
-              <button id="slider-prev" class="bg-black/50 text-white p-3 rounded-r-lg hover:bg-black/70 transition-opacity duration-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+              <button id="slider-prev" class="bg-black/50 text-white p-2 sm:p-3 rounded-r-lg hover:bg-black/70 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
               </button>
             </div>
             <div class="absolute inset-y-0 right-0 flex items-center">
-              <button id="slider-next" class="bg-black/50 text-white p-3 rounded-l-lg hover:bg-black/70 transition-opacity duration-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+              <button id="slider-next" class="bg-black/50 text-white p-2 sm:p-3 rounded-l-lg hover:bg-black/70 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
               </button>
             </div>
           </div>
-          <div id="thumbnails-container" class="flex justify-center gap-2 mt-4"></div>
+          <div id="thumbnails-container" class="flex flex-wrap justify-center gap-2 sm:gap-3 mt-2 sm:mt-3"></div>
         </div>
 
         <!-- Details -->
         <div class="lg:w-1/2 w-full">
-          <h2 id="details-title" class="text-4xl font-bold heading mb-3"></h2>
-          <p id="details-price" class="text-3xl font-semibold text-green-700 dark:text-green-400 mb-4"></p>
-          <p id="details-description" class="subtle mb-6 leading-relaxed"></p>
+          <h2 id="details-title" class="text-2xl sm:text-4xl font-bold heading mb-2 sm:mb-3"></h2>
+          <p id="details-price" class="text-2xl sm:text-3xl font-semibold text-green-700 dark:text-green-400 mb-3 sm:mb-4"></p>
+          <p id="details-description" class="subtle mb-4 sm:mb-6 leading-relaxed text-base sm:text-lg"></p>
           <button id="buy-now-button" class="btn-solid w-full shadow-lg transform hover:scale-105">
             <i class="fas fa-shopping-cart mr-2"></i> Order Now
           </button>
-          <div id="details-video-container" class="w-full mt-6">
-            <iframe id="details-video" class="rounded-xl shadow-md w-full h-64" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          <div id="details-video-container" class="w-full mt-4 sm:mt-6">
+            <iframe id="details-video" class="rounded-xl shadow-md w-full h-52 sm:h-64" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
           </div>
         </div>
       </div>
 
-      <div id="more-details-section" class="mt-10 card-glass rounded-3xl shadow-lg p-8">
-        <h3 class="text-3xl font-bold heading mb-6">Product Overview</h3>
-        <p id="long-description" class="subtle leading-relaxed mb-8 text-lg"></p>
-        <div id="gallery-images-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+      <div id="more-details-section" class="mt-6 sm:mt-10 card-glass rounded-2xl sm:rounded-3xl shadow-lg p-5 sm:p-8">
+        <h3 class="text-2xl sm:text-3xl font-bold heading mb-4 sm:mb-6">Product Overview</h3>
+        <p id="long-description" class="subtle leading-relaxed mb-6 sm:mb-8 text-base sm:text-lg"></p>
+        <div id="gallery-images-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6"></div>
       </div>
     </div>
 
     <!-- SHIPPING -->
     <div id="shipping-page" class="page" style="display:none;">
-      <button id="back-to-details" class="mb-6 surface px-4 py-2 hover:shadow transition flex items-center space-x-2">
+      <button id="back-to-details" class="mb-4 sm:mb-6 surface px-4 py-2 hover:shadow transition flex items-center space-x-2">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
         <span>Back to Product</span>
       </button>
 
-      <div class="card-glass rounded-3xl shadow-2xl p-8">
-        <h2 class="text-4xl font-bold heading mb-8 text-center"><i class="fas fa-shipping-fast mr-3"></i> Order Information</h2>
+      <div class="card-glass rounded-2xl sm:rounded-3xl shadow-2xl p-5 sm:p-8">
+        <h2 class="text-2xl sm:text-4xl font-bold heading mb-6 sm:mb-8 text-center"><i class="fas fa-shipping-fast mr-3"></i> Order Information</h2>
 
-        <div id="order-summary" class="card-glass rounded-2xl p-6 mb-8">
-          <p class="text-xl font-bold heading mb-4">Order Summary</p>
+        <div id="order-summary" class="card-glass rounded-xl sm:rounded-2xl p-5 sm:p-6 mb-6 sm:mb-8">
+          <p class="text-lg sm:text-xl font-bold heading mb-3 sm:mb-4">Order Summary</p>
           <div class="flex justify-between items-center mb-2">
             <span id="summary-product-title" class="subtle"></span>
             <span id="summary-product-price" class="font-semibold text-green-700 dark:text-green-400"></span>
@@ -339,17 +385,17 @@
             <span id="shipping-charge" class="font-semibold text-yellow-700 dark:text-yellow-400">৳0</span>
           </div>
           <div class="border-t my-3" style="border-color:var(--color-border)"></div>
-          <div class="flex justify-between items-center text-xl font-bold heading">
+          <div class="flex justify-between items-center text-lg sm:text-xl font-bold heading">
             <span>Total:</span>
             <span id="total-price" class="text-green-700 dark:text-green-400"></span>
           </div>
         </div>
 
-        <form id="shipping-form" class="space-y-6">
+        <form id="shipping-form" class="space-y-4 sm:space-y-6">
           <input type="hidden" id="product-title" name="product"/>
           <input type="hidden" id="product-price" name="price"/>
 
-          <div class="grid md:grid-cols-2 gap-6">
+          <div class="grid md:grid-cols-2 gap-4 sm:gap-6">
             <div class="flex flex-col">
               <label for="customer-name" class="heading font-semibold mb-2"><i class="fas fa-user mr-2"></i>Full Name</label>
               <input type="text" id="customer-name" name="name" class="field" placeholder="Enter your full name" required/>
@@ -365,7 +411,7 @@
             <input type="text" id="home-address" name="address" class="field" placeholder="House/Flat, Road, Area" required/>
           </div>
 
-          <div class="grid md:grid-cols-2 gap-6">
+          <div class="grid md:grid-cols-2 gap-4 sm:gap-6">
             <div class="flex flex-col">
               <label for="thana-city" class="heading font-semibold mb-2"><i class="fas fa-map-marker-alt mr-2"></i>Thana / City</label>
               <input type="text" id="thana-city" name="thana" class="field" placeholder="e.g., Dhanmondi, Gulshan" required/>
@@ -416,11 +462,12 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      const themeToggle=document.getElementById('theme-toggle');
-      const body=document.body;
-      const savedTheme=localStorage.getItem('theme')||'light';
-      body.className=savedTheme;
-      themeToggle.addEventListener('click',()=>{ if(body.classList.contains('dark')){body.className='light';localStorage.setItem('theme','light')}else{body.className='dark';localStorage.setItem('theme','dark')}});
+      // Theme toggle (both bars)
+      const setTheme = (t)=>{document.body.className=t;localStorage.setItem('theme',t)}
+      const savedTheme=localStorage.getItem('theme')||'light'; setTheme(savedTheme);
+      const toggle = ()=> setTheme(document.body.classList.contains('dark')?'light':'dark');
+      document.getElementById('theme-toggle')?.addEventListener('click',toggle);
+      document.getElementById('theme-toggle-mobile')?.addEventListener('click',toggle);
 
       // Config
       const ORDERS_API_URL='https://sheetdb.io/api/v1/z35cwzop13xqp';
@@ -458,9 +505,9 @@
       ];
 
       const HERO_SLIDER_IMAGES=[
-        'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&h=400&q=80',
-        'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&h=400&q=80',
-        'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?auto=format&fit=crop&w=1200&h=400&q=80'
+        'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&h=600&q=80',
+        'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&h=600&q=80',
+        'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?auto=format&fit=crop&w=1200&h=600&q=80'
       ];
 
       // DOM
@@ -468,6 +515,7 @@
       const productDetailsPage=document.getElementById('product-details-page');
       const shippingPage=document.getElementById('shipping-page');
       const homeLogoBtn=document.getElementById('home-logo');
+      const homeLogoMobile=document.getElementById('home-logo-mobile');
       const backToProductsBtn=document.getElementById('back-to-products');
       const backToDetailsBtn=document.getElementById('back-to-details');
       const buyNowBtn=document.getElementById('buy-now-button');
@@ -498,7 +546,10 @@
       // Slider
       const startHeroSlider=()=>{
         const sliderContainer=document.getElementById('hero-slider-container');
-        sliderContainer.innerHTML=HERO_SLIDER_IMAGES.map((img,i)=>`<img src="${img}" class="slider-image absolute top-0 left-0 w-full h-full object-cover rounded-3xl ${i===0?'opacity-100':'opacity-0'}" alt="Hero ${i+1}">`).join('');
+        sliderContainer.innerHTML=HERO_SLIDER_IMAGES.map((img,i)=>`
+          <img src="${img}" class="slider-image absolute top-0 left-0 w-full h-full object-cover rounded-2xl sm:rounded-3xl ${i===0?'opacity-100':'opacity-0'}" alt="Hero ${i+1}">
+        `).join('');
+        sliderContainer.style.position='relative';
         const images=sliderContainer.querySelectorAll('.slider-image');
         heroSliderInterval=setInterval(()=>{
           images[heroSliderIndex].classList.replace('opacity-100','opacity-0');
@@ -513,26 +564,23 @@
         grid.innerHTML='';
         PRODUCTS.forEach(p=>{
           const card=document.createElement('div');
-          card.className='product-card glass-effect rounded-3xl shadow-2xl overflow-hidden cursor-pointer';
+          card.className='product-card glass-effect rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden cursor-pointer';
           card.innerHTML=`
             <div class="product-image relative overflow-hidden">
-              <img src="${p.images[0]}" alt="${p.name}" class="w-full h-64 object-cover transition-transform duration-500">
-              <div class="absolute top-4 right-4 badge px-3 py-1 text-sm font-bold shadow-lg">৳${p.price}</div>
-              <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end">
-                <div class="p-4 text-white w-full"><p class="text-sm font-medium">Click to view details</p></div>
-              </div>
+              <img src="${p.images[0]}" alt="${p.name}" class="transition-transform duration-500">
+              <div class="absolute top-3 right-3 badge px-3 py-1 text-xs sm:text-sm font-bold shadow-lg">৳${p.price}</div>
             </div>
-            <div class="p-6">
-              <h2 class="text-xl font-bold heading mb-3">${p.name}</h2>
+            <div class="p-4 sm:p-6">
+              <h2 class="text-lg sm:text-xl font-bold heading mb-2 sm:mb-3">${p.name}</h2>
               <p class="subtle text-sm mb-4 leading-relaxed">${p.description.substring(0,120)}...</p>
               <div class="flex justify-between items-center">
-                <span class="text-2xl font-bold text-green-700 dark:text-green-400">৳${p.price}</span>
+                <span class="text-xl sm:text-2xl font-bold text-green-700 dark:text-green-400">৳${p.price}</span>
                 <button class="buy-now-card-button btn-primary text-sm" data-product-id="${p.id}">
                   <i class="fas fa-shopping-cart mr-1"></i> Order Now
                 </button>
               </div>
             </div>`;
-          card.querySelector('img').addEventListener('click',()=>showProductDetails(p.id));
+          card.querySelector('.product-image').addEventListener('click',()=>showProductDetails(p.id));
           card.querySelector('h2').addEventListener('click',()=>showProductDetails(p.id));
           card.querySelector('.buy-now-card-button').addEventListener('click',(e)=>{e.stopPropagation();showShippingPage(e,p.id)});
           grid.appendChild(card);
@@ -568,7 +616,7 @@
         currentProduct.galleryImages.forEach(src=>{
           const img=document.createElement('img');
           img.src=src; img.alt=currentProduct.name+' Gallery Image';
-          img.className='w-full h-auto rounded-2xl shadow-lg object-cover hover-lift';
+          img.className='w-full h-60 sm:h-72 object-contain bg-white rounded-xl shadow-lg';
           galleryImagesContainer.appendChild(img);
         });
 
@@ -576,7 +624,7 @@
         currentProduct.images.forEach((src,i)=>{
           const thumb=document.createElement('img');
           thumb.src=src; thumb.alt='Thumbnail '+(i+1);
-          thumb.className='thumbnail-image w-20 h-16 object-cover rounded-lg shadow-sm cursor-pointer transition-all duration-200 hover:scale-110';
+          thumb.className='thumbnail-image thumb object-contain bg-white rounded-lg shadow-sm cursor-pointer transition-all duration-200 hover:scale-105';
           thumb.addEventListener('click',()=>{currentImageIndex=i;updateMainImage()});
           thumbnailsContainer.appendChild(thumb);
         });
@@ -585,6 +633,7 @@
         productListPage.style.display='none';
         shippingPage.style.display='none';
         productDetailsPage.style.display='block';
+        window.scrollTo({top:0,behavior:'smooth'});
       };
 
       const showShippingPage=(e,productId=null)=>{
@@ -600,6 +649,7 @@
         productDetailsPage.style.display='none';
         productListPage.style.display='none';
         shippingPage.style.display='block';
+        window.scrollTo({top:0,behavior:'smooth'});
       };
 
       const calculateShipping=()=>{
@@ -633,7 +683,7 @@
           if(res.ok){
             Swal.fire({icon:'success',title:'Order Placed Successfully!',text:'We will confirm your order by phone call within 24 hours. Thank you for choosing Trustiva!',confirmButtonColor:'#10B981'});
             shippingForm.reset();
-            setTimeout(()=>{shippingPage.style.display='none';productListPage.style.display='block';},2000);
+            setTimeout(()=>{shippingPage.style.display='none';productListPage.style.display='block';},1500);
           }else{
             const err=await res.json();console.error('API Error:',err);
             Swal.fire({icon:'error',title:'Order Failed',text:'Failed to place order. Please try again or contact support.'});
@@ -675,18 +725,23 @@
       districtInput.addEventListener('input',calculateShipping);
       document.getElementById('slider-next').addEventListener('click',()=>navigateSlider(1));
       document.getElementById('slider-prev').addEventListener('click',()=>navigateSlider(-1));
-      document.getElementById('home-logo').addEventListener('click',(e)=>{e.preventDefault();productDetailsPage.style.display='none';shippingPage.style.display='none';productListPage.style.display='block'});
 
-      helplineIcon.addEventListener('click',()=>helplineModal.classList.remove('hidden'));
+      // Home logo (both)
+      const goHome=(e)=>{e.preventDefault();productDetailsPage.style.display='none';shippingPage.style.display='none';productListPage.style.display='block';window.scrollTo({top:0,behavior:'smooth'})}
+      homeLogoBtn?.addEventListener('click',goHome);
+      homeLogoMobile?.addEventListener('click',goHome);
+
+      // Helpline
+      document.getElementById('helpline-icon').addEventListener('click',()=>helplineModal.classList.remove('hidden'));
       closeHelplineModalBtn.addEventListener('click',()=>helplineModal.classList.add('hidden'));
       helplineForm.addEventListener('submit',sendMessage);
 
+      // Smooth in-page nav
       document.querySelectorAll('a[href^="#"]').forEach(a=>{
         a.addEventListener('click',function(e){e.preventDefault();const t=document.querySelector(this.getAttribute('href'));if(t){t.scrollIntoView({behavior:'smooth',block:'start'})}});
       });
 
       // Init
-      const sliderContainer=document.getElementById('hero-slider-container'); sliderContainer.style.position='relative';
       renderProductList(); startHeroSlider();
     });
   </script>
