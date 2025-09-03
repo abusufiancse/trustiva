@@ -118,9 +118,15 @@
   <div class="nav-mobile md:hidden sticky top-0 z-50">
     <div class="mx-auto px-3 py-2 flex items-center justify-between">
       <a href="#" id="home-logo-mobile" class="flex items-center space-x-2">
-        <!-- Mobile view logo -->
+        <!-- Mobile logo -->
         <div class="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center glow-effect">
-        <img src="assets/images/logo/trustiva_logo.png" alt="Trustiva logo" class="w-full h-full object-contain" />
+        <img
+            class="brand-logo w-full h-full object-contain"
+            src="assets/images/logo/trustiva_logo.png"
+            data-light="assets/images/logo/trustiva_logo.png"
+            data-dark="assets/images/logo/trustiva_logo_dark.png"
+            alt="Trustiva logo"
+        />
         </div>
         <span class="font-extrabold text-lg gradient-text">Trustiva</span>
       </a>
@@ -158,10 +164,16 @@
 
       <div class="flex justify-between items-center py-3">
         <a href="#" id="home-logo" class="flex items-center space-x-3">
-          <!-- Desktop/Tablet view logo -->
-            <div class="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center glow-effect">
-            <img src="assets/images/logo/trustiva_logo.png" alt="Trustiva logo" class="w-full h-full object-contain" />
-            </div>
+        <!-- Desktop/Tablet logo -->
+        <div class="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center glow-effect">
+        <img
+            class="brand-logo w-full h-full object-contain"
+            src="assets/images/logo/trustiva_logo.png"
+            data-light="assets/images/logo/trustiva_logo.png"
+            data-dark="assets/images/logo/trustiva_logo_dark.png"
+            alt="Trustiva logo"
+        />
+        </div>
           <h1 class="text-2xl font-bold gradient-text">Trustiva</h1>
         </a>
 
@@ -454,13 +466,31 @@
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Theme
-      const setTheme = (t)=>{document.body.className=t;localStorage.setItem('theme',t)}
-      const savedTheme=localStorage.getItem('theme')||'light'; setTheme(savedTheme);
-      const toggleTheme = ()=> setTheme(document.body.classList.contains('dark')?'light':'dark');
-      document.getElementById('theme-toggle')?.addEventListener('click',toggleTheme);
-      document.getElementById('theme-toggle-mobile')?.addEventListener('click',toggleTheme);
+  document.addEventListener('DOMContentLoaded', () => {
+    const updateLogos = () => {
+      const isDark = document.body.classList.contains('dark');
+      document.querySelectorAll('.brand-logo').forEach(img => {
+        const lightSrc = img.getAttribute('data-light');
+        const darkSrc  = img.getAttribute('data-dark');
+        img.src = isDark ? darkSrc : lightSrc;
+      });
+    };
+
+    // replace your existing setTheme with this version
+    const setTheme = (t) => {
+      document.body.className = t;
+      localStorage.setItem('theme', t);
+      updateLogos();
+    };
+
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    setTheme(savedTheme);           // ensures correct logo on first load
+
+    const toggleTheme = () =>
+      setTheme(document.body.classList.contains('dark') ? 'light' : 'dark');
+
+    document.getElementById('theme-toggle')?.addEventListener('click', toggleTheme);
+    document.getElementById('theme-toggle-mobile')?.addEventListener('click', toggleTheme);
 
       // Helpers
       const formatCurrency = v => `৳${v}`;
