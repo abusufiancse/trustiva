@@ -34,6 +34,7 @@
     .page{animation:fadeIn .6s ease-in-out}
     @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
     .slider-image{transition:opacity 1s ease-in-out}
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.7} }
 
     /* Glass */
     .glass-effect{background:rgba(255,255,255,.9);backdrop-filter:blur(15px);border:1px solid rgba(0,0,0,.1);box-shadow:0 8px 32px rgba(0,0,0,.1)}
@@ -49,23 +50,19 @@
     .product-card:hover{transform:translateY(-10px) scale(1.02);box-shadow:0 20px 40px rgba(0,0,0,.15);border-color:var(--color-primary)}
     .dark .product-card:hover{box-shadow:0 20px 40px rgba(34,197,94,.2)}
 
-    /* Product image wrapper: use object-contain + white surface for true product view */
+    /* Product image wrapper: object-contain + clean surface */
     .product-image{position:relative;overflow:hidden;border-radius:16px 16px 0 0;background:#fff}
     .dark .product-image{background:#0b0f1a}
-    /* Responsive heights so images show fully without weird crop */
-    .product-image{height:14rem}        /* h-56 mobile */
-    @media (min-width:640px){ .product-image{height:16rem} } /* sm:h-64 */
-    @media (min-width:1024px){ .product-image{height:18rem} }/* lg:h-72 */
-
-    /* Keep zoom, remove color overlay entirely */
+    .product-image{height:14rem}
+    @media (min-width:640px){ .product-image{height:16rem} }
+    @media (min-width:1024px){ .product-image{height:18rem} }
     .product-image img{transition:transform .6s ease;width:100%;height:100%;object-fit:contain;object-position:center}
     .product-card:hover .product-image img{transform:scale(1.08)}
-    /* IMPORTANT: removed colored ::after overlay */
+    /* NO colored overlay */
 
     /* Top bars */
     .nav-top-bar{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(0,0,0,.1)}
     .dark .nav-top-bar{background:rgba(15,23,42,.95);border-bottom:1px solid rgba(255,255,255,.1)}
-    /* Mobile compact bar: tiny height, single row */
     .nav-mobile{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(0,0,0,.08)}
     .dark .nav-mobile{background:rgba(15,23,42,.95);border-bottom:1px solid rgba(255,255,255,.1)}
 
@@ -74,6 +71,7 @@
     .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(21,128,61,.4)}
     .btn-solid{background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:var(--color-primary-foreground);border:none;border-radius:12px;padding:12px 24px;font-weight:700;transition:transform .2s ease,box-shadow .2s ease;box-shadow:0 4px 15px rgba(21,128,61,.3)}
     .btn-solid:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(21,128,61,.4)}
+    .btn-disabled{opacity:.6;cursor:not-allowed}
 
     /* Inputs */
     .field{background:var(--color-background);color:var(--color-foreground);border:2px solid var(--color-border);border-radius:12px;padding:12px 16px;transition:all .2s ease}
@@ -84,7 +82,10 @@
     .heading{color:var(--color-foreground)}
     .subtle{color:var(--color-muted-foreground)}
     .surface{background:var(--color-background);color:var(--color-foreground);border:1px solid var(--color-border);border-radius:9999px}
+
+    /* Badges */
     .badge{background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:var(--color-primary-foreground);border-radius:9999px}
+    .badge-red{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;border-radius:9999px}
 
     /* Toggle */
     .theme-toggle{position:relative;width:56px;height:28px;background:var(--color-muted);border-radius:14px;cursor:pointer;transition:all .3s ease;border:2px solid var(--color-border)}
@@ -94,29 +95,17 @@
     .hover-lift{transition:transform .3s ease,box-shadow .3s ease}
     .hover-lift:hover{transform:translateY(-8px);box-shadow:0 25px 50px rgba(0,0,0,.15)}
     .pulse-animation{animation:pulse 2s infinite}
-    @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50%      { opacity: .7; }
-    }
 
-    /* DETAILS PAGE IMAGE: contain-fit with generous height */
-    .details-main-img{
-    width:100%;
-    height:22rem;
-    object-fit:contain;
-    object-position:center;
-    background:#fff;
-    border-radius:1rem;
-    }
-
+    /* DETAILS PAGE IMAGE */
+    .details-main-img{width:100%;height:22rem;object-fit:contain;object-position:center;background:#fff;border-radius:1rem}
     @media (min-width:640px){ .details-main-img{height:26rem} }
     @media (min-width:1024px){ .details-main-img{height:28rem} }
 
-    /* Thumbnails: bigger for touch */
+    /* Thumbnails */
     .thumb{width:5rem;height:4rem}
     @media (min-width:640px){ .thumb{width:6rem;height:4.5rem} }
 
-    /* HERO: responsive heights */
+    /* HERO */
     .hero-h{height:13rem}
     @media (min-width:640px){ .hero-h{height:18rem} }
     @media (min-width:1024px){ .hero-h{height:24rem} }
@@ -124,7 +113,7 @@
 </head>
 <body class="light">
 
-  <!-- MOBILE COMPACT TOP BAR (shows only on < md) -->
+  <!-- MOBILE COMPACT TOP BAR -->
   <div class="nav-mobile md:hidden sticky top-0 z-50">
     <div class="mx-auto px-3 py-2 flex items-center justify-between">
       <a href="#" id="home-logo-mobile" class="flex items-center space-x-2">
@@ -137,26 +126,22 @@
         <a href="tel:01758649737" class="px-2 py-1 rounded-full border border-[var(--color-border)] text-sm hover:bg-[var(--color-muted)]">
           <i class="fas fa-phone mr-1"></i> Call
         </a>
-        <a href="mailto:sifatmahmud2532@gmail.com" class="p-2 rounded-full border border-[var(--color-border)]" title="Email">
-          <i class="fas fa-envelope"></i>
-        </a>
-        <a href="https://www.facebook.com/trustivagaming" target="_blank" class="p-2 rounded-full border border-[var(--color-border)]" title="Facebook">
-          <i class="fab fa-facebook"></i>
-        </a>
+        <a href="mailto:sifatmahmud2532@gmail.com" class="p-2 rounded-full border border-[var(--color-border)]" title="Email"><i class="fas fa-envelope"></i></a>
+        <a href="https://www.facebook.com/trustivagaming" target="_blank" class="p-2 rounded-full border border-[var(--color-border)]" title="Facebook"><i class="fab fa-facebook"></i></a>
         <div class="theme-toggle" id="theme-toggle-mobile" title="Toggle Dark/Light"></div>
       </div>
     </div>
   </div>
 
-  <!-- DESKTOP/TABLET NAV (hidden on mobile) -->
+  <!-- DESKTOP/TABLET NAV -->
   <nav class="glass-effect sticky top-0 z-40 py-2 hidden md:block">
     <div class="container mx-auto px-4">
       <div class="nav-top-bar flex justify-between items-center text-sm py-2 px-4 rounded-lg mb-2">
-        <div class="flex items-center space-x-6 text-muted-foreground">
-          <a href="tel:01758649737" class="flex items-center hover:text-[var(--color-primary)] transition-colors">
+        <div class="flex items-center space-x-6 subtle">
+          <a href="tel:01758649737" class="flex items-center hover:text-[var(--color-primary)]">
             <i class="fas fa-phone mr-2"></i><span>01758649737</span>
           </a>
-          <a href="mailto:sifatmahmud2532@gmail.com" class="flex items-center hover:text-[var(--color-primary)] transition-colors">
+          <a href="mailto:sifatmahmud2532@gmail.com" class="flex items-center hover:text-[var(--color-primary)]">
             <i class="fas fa-envelope mr-2"></i><span>sifatmahmud2532@gmail.com</span>
           </a>
           <span class="hidden lg:flex items-center"><i class="fas fa-map-marker-alt mr-2"></i> Puran Paltan, Dhaka 1000</span>
@@ -179,9 +164,9 @@
 
         <div class="flex items-center space-x-6">
           <div class="hidden md:flex items-center space-x-6">
-            <a href="#social-section" class="hover:text-[var(--color-primary)] transition-colors font-medium"><i class="fas fa-store mr-2"></i> Shop</a>
-            <a href="#youtube-section" class="hover:text-[var(--color-primary)] transition-colors font-medium"><i class="fab fa-youtube mr-2"></i> Videos</a>
-            <a href="#facebook-section" class="hover:text-[var(--color-primary)] transition-colors font-medium"><i class="fab fa-facebook mr-2"></i> Updates</a>
+            <a href="#social-section" class="hover:text-[var(--color-primary)] font-medium"><i class="fas fa-store mr-2"></i> Shop</a>
+            <a href="#youtube-section" class="hover:text-[var(--color-primary)] font-medium"><i class="fab fa-youtube mr-2"></i> Videos</a>
+            <a href="#facebook-section" class="hover:text-[var(--color-primary)] font-medium"><i class="fab fa-facebook mr-2"></i> Updates</a>
           </div>
           <div class="theme-toggle" id="theme-toggle" title="Toggle Dark/Light Mode"></div>
         </div>
@@ -346,7 +331,12 @@
         <!-- Details -->
         <div class="lg:w-1/2 w-full">
           <h2 id="details-title" class="text-2xl sm:text-4xl font-bold heading mb-2 sm:mb-3"></h2>
-          <p id="details-price" class="text-2xl sm:text-3xl font-semibold text-green-700 dark:text-green-400 mb-3 sm:mb-4"></p>
+
+          <!-- Price block -->
+          <div id="price-block" class="mb-2 sm:mb-3"></div>
+          <div id="save-block" class="text-sm sm:text-base"></div>
+          <div id="stock-block" class="mt-2"></div>
+
           <p id="details-description" class="subtle mb-4 sm:mb-6 leading-relaxed text-base sm:text-lg"></p>
           <button id="buy-now-button" class="btn-solid w-full shadow-lg transform hover:scale-105">
             <i class="fas fa-shopping-cart mr-2"></i> Order Now
@@ -374,7 +364,7 @@
       <div class="card-glass rounded-2xl sm:rounded-3xl shadow-2xl p-5 sm:p-8">
         <h2 class="text-2xl sm:text-4xl font-bold heading mb-6 sm:mb-8 text-center"><i class="fas fa-shipping-fast mr-3"></i> Order Information</h2>
 
-        <div id="order-summary" class="card-glass rounded-xl sm:rounded-2xl p-5 sm:p-6 mb-6 sm:mb-8">
+        <div id="order-summary" class="card-glass rounded-xl sm:rounded-2xl p-5 sm:pb-6 mb-6 sm:mb-8">
           <p class="text-lg sm:text-xl font-bold heading mb-3 sm:mb-4">Order Summary</p>
           <div class="flex justify-between items-center mb-2">
             <span id="summary-product-title" class="subtle"></span>
@@ -462,40 +452,56 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Theme toggle (both bars)
+      // Theme
       const setTheme = (t)=>{document.body.className=t;localStorage.setItem('theme',t)}
       const savedTheme=localStorage.getItem('theme')||'light'; setTheme(savedTheme);
-      const toggle = ()=> setTheme(document.body.classList.contains('dark')?'light':'dark');
-      document.getElementById('theme-toggle')?.addEventListener('click',toggle);
-      document.getElementById('theme-toggle-mobile')?.addEventListener('click',toggle);
+      const toggleTheme = ()=> setTheme(document.body.classList.contains('dark')?'light':'dark');
+      document.getElementById('theme-toggle')?.addEventListener('click',toggleTheme);
+      document.getElementById('theme-toggle-mobile')?.addEventListener('click',toggleTheme);
+
+      // Helpers
+      const formatCurrency = v => `৳${v}`;
+      const getSavings = (original, current) => (original && original > current)
+        ? { amount: original - current, percent: Math.round(((original - current)/original)*100) }
+        : null;
 
       // Config
       const ORDERS_API_URL='https://sheetdb.io/api/v1/z35cwzop13xqp';
       const HELPLINE_API_URL='https://sheetdb.io/api/v1/s6us0zf0tp74j';
 
+      // Products with optional originalPrice (MRP), price (offer), and stock
       const PRODUCTS=[
-        {id:'product1',name:'M01 Six-finger Gaming Trigger Control Mechanical button',price:820,
+        {id:'product1',
+          name:'M01 Six-finger Gaming Trigger Control Mechanical button',
+          originalPrice:950, price:820, inStock:true,
           description:'Professional gaming trigger with mechanical buttons for enhanced mobile gaming experience. Features six-finger control for competitive advantage.',
           longDescription:'The M01 Gaming Trigger revolutionizes mobile gaming with its advanced six-finger control system. Designed for serious gamers, it provides mechanical button feedback and ergonomic design for extended gaming sessions. Compatible with most smartphones and perfect for PUBG, Free Fire, and other competitive games.',
           images:['assets/images/g21/main.jpg','assets/images/g21/g21_4.jpg','assets/images/g21/g21_3.png','assets/images/g21/g21_1.jpg'],
           galleryImages:['assets/images/g21/g21_3.png','assets/images/g21/g21_2.PNG'],
           videoUrl:'https://www.youtube.com/embed/dqrl1QOLqBA'
         },
-        {id:'product2',name:'MEMO MB03 Mobile Joystick Controller',price:1890,
+        {id:'product2',
+          name:'MEMO MB03 Mobile Joystick Controller',
+          originalPrice:2190, price:1890, inStock:true,
           description:'Premium mobile game controller made of ABS material, designed for phones 6-11mm thick. CE and RoHS certified for quality assurance.',
           longDescription:'The MEMO MB03 Mobile Joystick is engineered for professional mobile gaming. Constructed from high-quality ABS material, it supports phones with thickness of 6-11mm. The compact 48*46*44mm design includes USB-C cable and offers customization options. Certified by CE and RoHS standards, ensuring European safety compliance and market access.',
           images:['assets/images/MB03/MB03_1.jpg','assets/images/MB03/MB03_2.jpg','assets/images/MB03/MB03_3.jpg','assets/images/MB03/MB03_4.jpg'],
           galleryImages:['assets/images/MB03/MB03_3.jpg','assets/images/MB03/MB03_4.jpg'],
           videoUrl:'https://www.youtube.com/embed/1B1P_wS_0Lg'
         },
-        {id:'product3',name:'E9 Mobile Phone Game Joysticks Gamepad Trigger',price:240,
+        {id:'product3',
+          name:'E9 Mobile Phone Game Joysticks Gamepad Trigger',
+          originalPrice:260, price:240, inStock:false, /* stock out */
           description:'Affordable gaming trigger solution for mobile gamers. Lightweight design with responsive triggers for improved gaming performance.',
           longDescription:'The E9 Gaming Trigger offers excellent value for mobile gamers seeking enhanced control. Its lightweight design ensures comfortable extended gaming sessions while providing responsive trigger action. Perfect for casual and competitive mobile gaming across various game genres.',
           images:['assets/images/E2/E2_1.jpg','assets/images/E2/E2_2.jpg','assets/images/E2/E2_3.jpg','assets/images/E2/E2_4.jpg'],
           galleryImages:['assets/images/E2/E2_3.jpg','assets/images/E2/E2_4.jpg'],
           videoUrl:'https://www.youtube.com/embed/n3oF59s04_s'
         },
-        {id:'product4',name:'GT01 Gaming Trigger Pro',price:340,
+        {id:'product4',
+          name:'GT01 Gaming Trigger Pro',
+          /* no discount */
+          price:340, inStock:true,
           description:'Advanced gaming trigger with enhanced grip and precision control. Designed for competitive mobile gaming with superior build quality.',
           longDescription:'The GT01 Gaming Trigger Pro elevates your mobile gaming experience with its advanced engineering and superior build quality. Featuring enhanced grip technology and precision control mechanisms, it is designed specifically for competitive gamers who demand the best performance from their accessories.',
           images:['assets/images/GT01/GT01_1.jpg','assets/images/GT01/GT01_2.jpg','assets/images/GT01/GT01_3.jpg','assets/images/GT01/GT01_4.jpg'],
@@ -530,11 +536,14 @@
       const sliderNextBtn=document.getElementById('slider-next');
       const thumbnailsContainer=document.getElementById('thumbnails-container');
       const detailsTitle=document.getElementById('details-title');
-      const detailsPrice=document.getElementById('details-price');
       const detailsDescription=document.getElementById('details-description');
       const detailsVideo=document.getElementById('details-video');
       const longDescription=document.getElementById('long-description');
       const galleryImagesContainer=document.getElementById('gallery-images-container');
+      const priceBlock=document.getElementById('price-block');
+      const saveBlock=document.getElementById('save-block');
+      const stockBlock=document.getElementById('stock-block');
+      const summaryProductPrice=document.getElementById('summary-product-price');
 
       const helplineIcon=document.getElementById('helpline-icon');
       const helplineModal=document.getElementById('helpline-modal');
@@ -563,26 +572,42 @@
         const grid=document.querySelector('#product-list-page > div.grid');
         grid.innerHTML='';
         PRODUCTS.forEach(p=>{
+          const savings=getSavings(p.originalPrice, p.price);
+          const saveBadgeHTML = savings ? `<div class="absolute top-3 right-3 badge px-3 py-1 text-xs sm:text-sm font-bold shadow-lg">Save ${savings.percent}%</div>` : '';
+          const stockBadgeHTML = p.inStock ? '' : `<div class="absolute top-3 left-3 badge-red px-3 py-1 text-xs sm:text-sm font-bold shadow-lg">Stock Out</div>`;
+
           const card=document.createElement('div');
-          card.className='product-card glass-effect rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden cursor-pointer';
+          card.className='product-card glass-effect rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden';
           card.innerHTML=`
-            <div class="product-image relative overflow-hidden">
+            <div class="product-image relative">
               <img src="${p.images[0]}" alt="${p.name}" class="transition-transform duration-500">
-              <div class="absolute top-3 right-3 badge px-3 py-1 text-xs sm:text-sm font-bold shadow-lg">৳${p.price}</div>
+              ${saveBadgeHTML}
+              ${stockBadgeHTML}
             </div>
             <div class="p-4 sm:p-6">
-              <h2 class="text-lg sm:text-xl font-bold heading mb-2 sm:mb-3">${p.name}</h2>
+              <h2 class="text-lg sm:text-xl font-bold heading mb-2 sm:mb-3 cursor-pointer">${p.name}</h2>
               <p class="subtle text-sm mb-4 leading-relaxed">${p.description.substring(0,120)}...</p>
-              <div class="flex justify-between items-center">
-                <span class="text-xl sm:text-2xl font-bold text-green-700 dark:text-green-400">৳${p.price}</span>
-                <button class="buy-now-card-button btn-primary text-sm" data-product-id="${p.id}">
-                  <i class="fas fa-shopping-cart mr-1"></i> Order Now
-                </button>
+              <div class="flex items-center justify-between">
+                <div class="flex items-baseline gap-2">
+                  <span class="text-xl sm:text-2xl font-bold text-green-700 dark:text-green-400">${formatCurrency(p.price)}</span>
+                  ${p.originalPrice ? `<span class="subtle line-through text-sm sm:text-base">${formatCurrency(p.originalPrice)}</span>` : ''}
+                </div>
+                ${p.inStock
+                  ? `<button class="buy-now-card-button btn-primary text-sm" data-product-id="${p.id}">
+                       <i class="fas fa-shopping-cart mr-1"></i> Order Now
+                     </button>`
+                  : `<button class="btn-primary text-sm btn-disabled" disabled aria-disabled="true">Stock Out</button>`
+                }
               </div>
             </div>`;
+
+          // open details by clicking image or title
           card.querySelector('.product-image').addEventListener('click',()=>showProductDetails(p.id));
           card.querySelector('h2').addEventListener('click',()=>showProductDetails(p.id));
-          card.querySelector('.buy-now-card-button').addEventListener('click',(e)=>{e.stopPropagation();showShippingPage(e,p.id)});
+          const btn=card.querySelector('.buy-now-card-button');
+          if(btn){
+            btn.addEventListener('click',(e)=>{e.stopPropagation();showShippingPage(e,p.id)});
+          }
           grid.appendChild(card);
         });
       };
@@ -602,16 +627,28 @@
         updateMainImage();
       };
 
+      const renderPriceInfo=(p)=>{
+        const savings=getSavings(p.originalPrice, p.price);
+        priceBlock.innerHTML = `
+          <div class="flex items-baseline gap-3">
+            <span class="text-2xl sm:text-3xl font-bold text-green-700 dark:text-green-400">${formatCurrency(p.price)}</span>
+            ${p.originalPrice ? `<span class="subtle line-through text-lg sm:text-xl">${formatCurrency(p.originalPrice)}</span>` : ''}
+          </div>
+        `;
+        saveBlock.innerHTML = savings ? `<div class="text-emerald-700 dark:text-emerald-400 mt-1">You save <strong>${formatCurrency(savings.amount)}</strong> (${savings.percent}%)</div>` : '';
+        stockBlock.innerHTML = p.inStock ? '' : `<div class="text-red-600 dark:text-red-400 font-semibold mt-2">Currently out of stock</div>`;
+      };
+
       const showProductDetails=(id)=>{
         currentProduct=PRODUCTS.find(p=>p.id===id); if(!currentProduct) return;
-        currentImageIndex=0; updateMainImage();
+        currentImageIndex=0;
 
         detailsTitle.textContent=currentProduct.name;
-        detailsPrice.textContent=`৳${currentProduct.price}`;
         detailsDescription.textContent=currentProduct.description;
         detailsVideo.src=currentProduct.videoUrl;
+        renderPriceInfo(currentProduct);
 
-        longDescription.textContent=currentProduct.longDescription;
+        // Gallery
         galleryImagesContainer.innerHTML='';
         currentProduct.galleryImages.forEach(src=>{
           const img=document.createElement('img');
@@ -620,6 +657,7 @@
           galleryImagesContainer.appendChild(img);
         });
 
+        // Thumbs
         thumbnailsContainer.innerHTML='';
         currentProduct.images.forEach((src,i)=>{
           const thumb=document.createElement('img');
@@ -628,7 +666,19 @@
           thumb.addEventListener('click',()=>{currentImageIndex=i;updateMainImage()});
           thumbnailsContainer.appendChild(thumb);
         });
+
         updateMainImage();
+
+        // Buy button state
+        if(currentProduct.inStock){
+          buyNowBtn.disabled=false;
+          buyNowBtn.classList.remove('btn-disabled');
+          buyNowBtn.innerHTML='<i class="fas fa-shopping-cart mr-2"></i> Order Now';
+        }else{
+          buyNowBtn.disabled=true;
+          buyNowBtn.classList.add('btn-disabled');
+          buyNowBtn.innerHTML='Stock Out';
+        }
 
         productListPage.style.display='none';
         shippingPage.style.display='none';
@@ -640,10 +690,15 @@
         if(productId){currentProduct=PRODUCTS.find(p=>p.id===productId)}
         if(!currentProduct) return;
 
+        if(!currentProduct.inStock){
+          Swal.fire({icon:'warning',title:'Stock Out',text:'This product is currently out of stock.'});
+          return;
+        }
+
         document.getElementById('product-title').value=currentProduct.name;
         document.getElementById('product-price').value=currentProduct.price;
         document.getElementById('summary-product-title').textContent=currentProduct.name;
-        document.getElementById('summary-product-price').textContent=`৳${currentProduct.price}`;
+        summaryProductPrice.textContent = formatCurrency(currentProduct.price);
         calculateShipping();
 
         productDetailsPage.style.display='none';
@@ -662,6 +717,10 @@
 
       const placeOrder=async(event)=>{
         event.preventDefault();
+        if(!currentProduct?.inStock){
+          Swal.fire({icon:'warning',title:'Stock Out',text:'This product is currently out of stock.'});
+          return;
+        }
         if(ORDERS_API_URL.includes('YOUR_ORDERS_API_URL')){
           Swal.fire({icon:'error',title:'Configuration Error',text:'Please configure your SheetDB.io API URL for orders first.'});return;
         }
