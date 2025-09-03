@@ -1,718 +1,694 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trustiva</title>
-    <!-- Use Inter font for a clean, modern look -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Tailwind CSS CDN for easy styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- SweetAlert2 CDN for beautiful pop-ups -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-        }
-        .page {
-            animation: fadeIn 0.5s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .slider-image {
-            transition: opacity 1s ease-in-out;
-        }
-    </style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Trustiva - Premium Gaming Accessories</title>
+
+  <!-- Fonts & libs -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <style>
+    :root{
+      --color-primary:#15803d; --color-primary-foreground:#fff;
+      --color-secondary:#84cc16; --color-accent:#22c55e;
+      --color-background:#fff; --color-foreground:#1f2937;
+      --color-muted:#f3f4f6; --color-muted-foreground:#6b7280;
+      --color-border:#e5e7eb;
+    }
+    .dark{
+      --color-primary:#22c55e; --color-primary-foreground:#fff;
+      --color-secondary:#84cc16; --color-accent:#15803d;
+      --color-background:#111827; --color-foreground:#f9fafb;
+      --color-muted:#374151; --color-muted-foreground:#9ca3af;
+      --color-border:#4b5563;
+    }
+    body{font-family:'DM Sans',sans-serif;background:var(--color-background);color:var(--color-foreground);min-height:100vh;transition:all .3s ease}
+    .light{background:linear-gradient(135deg,#fff 0%,#f8fafc 50%,#f1f5f9 100%)}
+    .dark{background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#334155 100%)}
+    .page{animation:fadeIn .6s ease-in-out}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .slider-image{transition:opacity 1s ease-in-out}
+
+    /* Glass */
+    .glass-effect{background:rgba(255,255,255,.9);backdrop-filter:blur(15px);border:1px solid rgba(0,0,0,.1);box-shadow:0 8px 32px rgba(0,0,0,.1)}
+    .dark .glass-effect{background:rgba(15,23,42,.8);border:1px solid rgba(255,255,255,.1);box-shadow:0 8px 32px rgba(0,0,0,.3)}
+    .card-glass{backdrop-filter:blur(15px);box-shadow:0 8px 32px rgba(0,0,0,.10);border:1px solid rgba(0,0,0,.08);background:rgba(255,255,255,.92)}
+    .dark .card-glass{background:rgba(15,23,42,.80);border:1px solid rgba(255,255,255,.1);box-shadow:0 8px 32px rgba(0,0,0,.30)}
+
+    .gradient-text{background:linear-gradient(135deg,var(--color-primary) 0%,var(--color-secondary) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .glow-effect{box-shadow:0 0 20px rgba(34,197,94,.3)}
+
+    /* Product cards */
+    .product-card{transition:all .4s cubic-bezier(.4,0,.2,1);overflow:hidden;background:var(--color-background);border:1px solid var(--color-border);border-radius:16px}
+    .product-card:hover{transform:translateY(-12px) scale(1.03);box-shadow:0 30px 60px rgba(0,0,0,.15);border-color:var(--color-primary)}
+    .dark .product-card:hover{box-shadow:0 30px 60px rgba(34,197,94,.2)}
+    .product-image{position:relative;overflow:hidden;height:256px;border-radius:16px 16px 0 0}
+    .product-card:hover .product-image img{transform:scale(1.15)}
+    .product-image img{transition:transform .6s ease;width:100%;height:100%;object-fit:cover}
+    .product-image::after{content:'';position:absolute;inset:0;background:linear-gradient(45deg,rgba(21,128,61,.8),rgba(34,197,94,.6));opacity:0;transition:opacity .3s ease;display:flex;align-items:center;justify-content:center}
+    .product-card:hover .product-image::after{opacity:1}
+
+    /* Top bar */
+    .nav-top-bar{background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-bottom:1px solid rgba(0,0,0,.1)}
+    .dark .nav-top-bar{background:rgba(15,23,42,.95);border-bottom:1px solid rgba(255,255,255,.1)}
+    @media (max-width:768px){
+      .nav-top-bar{flex-direction:column;gap:8px;text-align:center}
+      .nav-top-bar .flex:first-child{flex-direction:column;gap:4px}
+      .nav-top-bar .flex:first-child>*{font-size:12px}
+      .nav-top-bar .flex:last-child{justify-content:center}
+    }
+
+    /* Buttons */
+    .btn-primary{background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:var(--color-primary-foreground);border:none;padding:12px 24px;border-radius:12px;font-weight:600;transition:all .3s ease;box-shadow:0 4px 15px rgba(21,128,61,.3)}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(21,128,61,.4)}
+    .btn-solid{background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:var(--color-primary-foreground);border:none;border-radius:12px;padding:12px 24px;font-weight:700;transition:transform .2s ease,box-shadow .2s ease;box-shadow:0 4px 15px rgba(21,128,61,.3)}
+    .btn-solid:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(21,128,61,.4)}
+
+    /* Inputs */
+    .field{background:var(--color-background);color:var(--color-foreground);border:2px solid var(--color-border);border-radius:12px;padding:12px 16px;transition:all .2s ease}
+    .field::placeholder{color:var(--color-muted-foreground)}
+    .field:focus{border-color:var(--color-primary);box-shadow:0 0 0 3px rgba(16,185,129,.15);outline:none}
+
+    /* Theme-aware helpers */
+    .heading{color:var(--color-foreground)}
+    .subtle{color:var(--color-muted-foreground)}
+    .surface{background:var(--color-background);color:var(--color-foreground);border:1px solid var(--color-border);border-radius:9999px}
+    .badge{background:linear-gradient(135deg,var(--color-primary),var(--color-accent));color:var(--color-primary-foreground);border-radius:9999px}
+
+    /* Toggle */
+    .theme-toggle{position:relative;width:60px;height:30px;background:var(--color-muted);border-radius:15px;cursor:pointer;transition:all .3s ease;border:2px solid var(--color-border)}
+    .theme-toggle::before{content:'';position:absolute;top:2px;left:2px;width:22px;height:22px;background:var(--color-primary);border-radius:50%;transition:all .3s ease;box-shadow:0 2px 4px rgba(0,0,0,.2)}
+    .dark .theme-toggle::before{transform:translateX(28px)}
+
+    .hover-lift{transition:transform .3s ease,box-shadow .3s ease}
+    .hover-lift:hover{transform:translateY(-8px);box-shadow:0 25px 50px rgba(0,0,0,.15)}
+    .pulse-animation{animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body class="light">
 
-    <!-- Main Application Container -->
-    <div id="app" class="container mx-auto px-4 py-8 max-w-6xl">
+  <!-- NAV -->
+  <nav class="glass-effect sticky top-0 z-40 py-2">
+    <div class="container mx-auto px-4">
+      <div class="nav-top-bar flex justify-between items-center text-sm py-3 px-4 rounded-lg mb-2">
+        <div class="flex items-center space-x-6 text-muted-foreground">
+          <a href="tel:01758649737" class="flex items-center hover:text-[var(--color-primary)] transition-colors">
+            <i class="fas fa-phone mr-2"></i><span class="hidden sm:inline">01758649737</span><span class="sm:hidden">Call</span>
+          </a>
+          <a href="mailto:sifatmahmud2532@gmail.com" class="flex items-center hover:text-[var(--color-primary)] transition-colors">
+            <i class="fas fa-envelope mr-2"></i><span class="hidden sm:inline">sifatmahmud2532@gmail.com</span><span class="sm:hidden">Email</span>
+          </a>
+          <span class="hidden lg:flex items-center"><i class="fas fa-map-marker-alt mr-2"></i> Puran Paltan, Dhaka 1000</span>
+        </div>
+        <div class="flex items-center space-x-4">
+          <a href="https://www.daraz.com.bd/shop/trustiva" target="_blank" class="text-orange-500 hover:text-orange-400"><i class="fab fa-shopify text-lg"></i></a>
+          <a href="https://www.facebook.com/trustivagaming" target="_blank" class="text-blue-500 hover:text-blue-400"><i class="fab fa-facebook text-lg"></i></a>
+          <a href="https://www.youtube.com/@trustivagaming" target="_blank" class="text-red-500 hover:text-red-400"><i class="fab fa-youtube text-lg"></i></a>
+          <a href="https://www.instagram.com/trustivagaming" target="_blank" class="text-pink-500 hover:text-pink-400"><i class="fab fa-instagram text-lg"></i></a>
+        </div>
+      </div>
 
-        <!-- Header -->
-        <header class="flex justify-center md:justify-between items-center mb-10">
-            <!-- Website Logo -->
-            <a href="#" id="home-logo" class="flex items-center space-x-2">
-                <img src="assets/images/logo/trustiva_logo.png" alt="Shop Logo" class="h-10 w-10 rounded-full shadow-lg">
-                <h1 class="text-2xl font-extrabold text-gray-900 hidden md:block">Trustiva</h1>
+      <div class="flex justify-between items-center py-3">
+        <a href="#" id="home-logo" class="flex items-center space-x-3">
+          <div class="w-12 h-12 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] rounded-full flex items-center justify-center glow-effect">
+            <i class="fas fa-gamepad text-[var(--color-primary-foreground)] text-xl"></i>
+          </div>
+          <h1 class="text-2xl font-bold gradient-text">Trustiva</h1>
+        </a>
+
+        <div class="flex items-center space-x-6">
+          <div class="hidden md:flex items-center space-x-6">
+            <a href="#social-section" class="hover:text-[var(--color-primary)] transition-colors font-medium"><i class="fas fa-store mr-2"></i> Shop</a>
+            <a href="#youtube-section" class="hover:text-[var(--color-primary)] transition-colors font-medium"><i class="fab fa-youtube mr-2"></i> Videos</a>
+            <a href="#facebook-section" class="hover:text-[var(--color-primary)] transition-colors font-medium"><i class="fab fa-facebook mr-2"></i> Updates</a>
+          </div>
+          <div class="theme-toggle" id="theme-toggle" title="Toggle Dark/Light Mode">
+            <i class="fas fa-sun absolute left-1 top-1 text-xs text-yellow-500"></i>
+            <i class="fas fa-moon absolute right-1 top-1 text-xs text-blue-300"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- APP -->
+  <div id="app" class="container mx-auto px-4 py-8 max-w-7xl">
+
+    <!-- PRODUCT LIST -->
+    <div id="product-list-page" class="page">
+      <div class="text-center mb-12">
+        <h2 class="text-5xl font-bold gradient-text mb-4">Premium Gaming Accessories</h2>
+        <p class="text-xl subtle max-w-2xl mx-auto">Elevate your gaming experience with our professional-grade controllers and accessories</p>
+      </div>
+
+      <!-- HERO SLIDER -->
+      <div class="relative w-full h-96 overflow-hidden rounded-3xl mb-16 shadow-2xl">
+        <div id="hero-slider-container" class="w-full h-full"></div>
+        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+          <div class="w-3 h-3 bg-white rounded-full opacity-50"></div>
+          <div class="w-3 h-3 bg-white rounded-full opacity-50"></div>
+          <div class="w-3 h-3 bg-white rounded-full opacity-100"></div>
+        </div>
+      </div>
+
+      <!-- PRODUCTS -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-16"></div>
+
+      <!-- SOCIAL -->
+      <div id="social-section" class="glass-effect rounded-3xl p-8 mb-16">
+        <div class="text-center mb-8">
+          <h3 class="text-3xl font-bold gradient-text mb-4">Connect With Us</h3>
+          <p class="subtle text-lg">Stay updated with our latest products and gaming content</p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8">
+          <div class="glass-effect rounded-2xl p-6 text-center hover-lift border border-orange-200 dark:border-orange-800">
+            <div class="w-20 h-20 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-4 glow-effect">
+              <i class="fab fa-shopify text-white text-3xl"></i>
+            </div>
+            <h4 class="text-xl font-bold heading mb-3">Daraz Store</h4>
+            <p class="subtle mb-4">Shop with fast delivery and secure payment options</p>
+            <a href="https://www.daraz.com.bd/shop/trustiva" target="_blank" class="btn-primary inline-flex items-center">
+              <i class="fab fa-shopify mr-2"></i> Visit Store
             </a>
-            <p class="text-lg text-gray-600 hidden md:block">Discover quality products for a great price.</p>
-        </header>
+          </div>
 
-        <!-- Product List Page -->
-        <div id="product-list-page" class="page">
-            <!-- Hero Slider for a professional look -->
-            <div class="relative w-full h-80 overflow-hidden rounded-2xl mb-10 shadow-xl">
-                <div id="hero-slider-container" class="w-full h-full">
-                    <!-- Images will be dynamically inserted here by JavaScript -->
-                </div>
+          <div class="glass-effect rounded-2xl p-6 text-center hover-lift border border-blue-200 dark:border-blue-800">
+            <div class="w-20 h-20 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 glow-effect">
+              <i class="fab fa-facebook text-white text-3xl"></i>
             </div>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Product cards will be dynamically inserted here by JavaScript -->
+            <h4 class="text-xl font-bold heading mb-3">Facebook Page</h4>
+            <p class="subtle mb-4">Get product updates and exclusive offers</p>
+            <a href="https://www.facebook.com/trustivagaming" target="_blank" class="btn-primary inline-flex items-center">
+              <i class="fab fa-facebook mr-2"></i> Follow Us
+            </a>
+          </div>
+
+          <div class="glass-effect rounded-2xl p-6 text-center hover-lift border border-pink-200 dark:border-pink-800">
+            <div class="w-20 h-20 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 glow-effect">
+              <i class="fab fa-instagram text-white text-3xl"></i>
             </div>
+            <h4 class="text-xl font-bold heading mb-3">Instagram</h4>
+            <p class="subtle mb-4">Watch new gadget videos and gaming content</p>
+            <a href="https://www.instagram.com/trustivagaming" target="_blank" class="btn-primary inline-flex items-center">
+              <i class="fab fa-instagram mr-2"></i> Follow Us
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- YOUTUBE -->
+      <div id="youtube-section" class="glass-effect rounded-3xl p-8 mb-16">
+        <div class="text-center mb-8">
+          <h3 class="text-3xl font-bold gradient-text mb-4"><i class="fab fa-youtube text-red-500 mr-3"></i>Gaming Tutorials & Reviews</h3>
+          <p class="subtle text-lg">Learn how to use our products and see detailed reviews</p>
         </div>
 
-        <!-- Product Details Page (Initially Hidden) -->
-        <div id="product-details-page" class="page" style="display: none;">
-            <button id="back-to-products" class="mb-6 text-blue-600 hover:text-blue-800 transition-colors duration-200 flex items-center space-x-1">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                <span>Back to Products</span>
-            </button>
-            <div class="bg-white rounded-2xl shadow-lg p-8 flex flex-col lg:flex-row items-start gap-8">
-                <!-- Product Image Slider -->
-                <div class="lg:w-1/2 w-full">
-                    <div class="relative w-full overflow-hidden rounded-xl shadow-md mb-4">
-                        <img id="main-product-image" src="" alt="Main Product Image" class="w-full object-cover">
-                        <!-- Slider controls -->
-                        <div class="absolute inset-y-0 left-0 flex items-center">
-                            <button id="slider-prev" class="bg-black bg-opacity-50 text-white p-2 rounded-r-lg hover:bg-opacity-75 transition-opacity duration-200">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="absolute inset-y-0 right-0 flex items-center">
-                            <button id="slider-next" class="bg-black bg-opacity-50 text-white p-2 rounded-l-lg hover:bg-opacity-75 transition-opacity duration-200">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    <!-- Image thumbnails for navigation -->
-                    <div id="thumbnails-container" class="flex justify-center gap-2 mt-4"></div>
-                </div>
-
-                <!-- Product Details -->
-                <div class="lg:w-1/2 w-full">
-                    <h2 id="details-title" class="text-4xl font-bold text-gray-900 mb-2"></h2>
-                    <p id="details-price" class="text-3xl font-semibold text-gray-700 mb-4"></p>
-                    <p id="details-description" class="text-gray-600 mb-6 leading-relaxed"></p>
-                    <button id="buy-now-button" class="bg-indigo-600 text-white font-semibold py-4 px-8 rounded-full hover:bg-indigo-700 transition-colors duration-200 w-full shadow-lg transform hover:scale-105">Buy Now</button>
-                    
-                    <!-- YouTube Video -->
-                    <div id="details-video-container" class="aspect-w-16 aspect-h-9 w-full mt-6">
-                        <iframe id="details-video" class="rounded-lg shadow-md w-full" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                    </div>
-                </div>
+        <div class="grid md:grid-cols-2 gap-8 items-center">
+          <div class="aspect-video rounded-2xl overflow-hidden shadow-2xl">
+            <iframe width="100%" height="100%" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Trustiva Gaming Setup Tutorial" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="rounded-2xl"></iframe>
+          </div>
+          <div class="space-y-6">
+            <h4 class="text-2xl font-bold heading">Subscribe for Latest Content</h4>
+            <p class="subtle text-lg">Get notified about new product tutorials, gaming tips, and exclusive reviews.</p>
+            <div class="flex flex-col sm:flex-row gap-4">
+              <a href="https://www.youtube.com/@trustivagaming?sub_confirmation=1" target="_blank" class="btn-primary inline-flex items-center justify-center">
+                <i class="fab fa-youtube mr-2"></i> Subscribe Now
+              </a>
+              <a href="https://www.youtube.com/@trustivagaming" target="_blank" class="border-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 inline-flex items-center justify-center">
+                <i class="fab fa-youtube mr-2"></i> View Channel
+              </a>
             </div>
-
-            <!-- More Product Details Section -->
-            <div id="more-details-section" class="mt-10 bg-white rounded-2xl shadow-lg p-8">
-                <h3 class="text-2xl font-bold text-gray-900 mb-4">Product Overview</h3>
-                <p id="long-description" class="text-gray-600 leading-relaxed mb-6"></p>
-                <!-- This container now uses flexbox for vertical display and spacing -->
-                <div id="gallery-images-container" class="flex flex-col space-y-4"></div>
+            <div class="flex items-center space-x-4 text-sm subtle">
+              <span class="flex items-center"><i class="fas fa-users mr-2"></i> 1.2K Subscribers</span>
+              <span class="flex items-center"><i class="fas fa-video mr-2"></i> 25+ Videos</span>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FACEBOOK -->
+      <div id="facebook-section" class="glass-effect rounded-3xl p-8 mb-16">
+        <div class="text-center mb-8">
+          <h3 class="text-3xl font-bold gradient-text mb-4"><i class="fab fa-facebook text-blue-500 mr-3"></i>Join Our Gaming Community</h3>
+          <p class="subtle text-lg">Stay connected with fellow gamers and get exclusive updates</p>
         </div>
 
-        <!-- Shipping Page (Initially Hidden) -->
-        <div id="shipping-page" class="page" style="display: none;">
-            <button id="back-to-details" class="mb-6 text-blue-600 hover:text-blue-800 transition-colors duration-200 flex items-center space-x-1">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                <span>Back to Product</span>
-            </button>
-            <div class="bg-white rounded-2xl shadow-lg p-8">
-                <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">Shipping Information</h2>
-
-                <div id="order-summary" class="bg-gray-50 rounded-lg p-4 mb-6 border border-gray-200">
-                    <p class="text-lg font-semibold text-gray-700 mb-2">Order Summary</p>
-                    <div class="flex justify-between items-center mb-1">
-                        <span id="summary-product-title" class="text-gray-600"></span>
-                        <span id="summary-product-price" class="font-medium text-gray-800"></span>
-                    </div>
-                    <div class="flex justify-between items-center mb-1">
-                        <span class="text-gray-600">Shipping Charge:</span>
-                        <span id="shipping-charge" class="font-medium text-gray-800">৳0</span>
-                    </div>
-                    <div class="border-t border-gray-300 my-2"></div>
-                    <div class="flex justify-between items-center text-lg font-bold text-gray-900">
-                        <span>Total:</span>
-                        <span id="total-price"></span>
-                    </div>
-                </div>
-
-                <form id="shipping-form" class="space-y-4">
-                    <!-- Hidden fields to store product info -->
-                    <input type="hidden" id="product-title" name="product">
-                    <input type="hidden" id="product-price" name="price">
-
-                    <div class="flex flex-col">
-                        <label for="customer-name" class="text-gray-700 font-semibold mb-1">Name</label>
-                        <input type="text" id="customer-name" name="name" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" required>
-                    </div>
-
-                    <div class="flex flex-col">
-                        <label for="customer-phone" class="text-gray-700 font-semibold mb-1">Phone Number</label>
-                        <input type="tel" id="customer-phone" name="phone" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" required>
-                    </div>
-                    
-                    <div class="flex flex-col">
-                        <label for="home-address" class="text-gray-700 font-semibold mb-1">Home Address</label>
-                        <input type="text" id="home-address" name="address" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" required>
-                    </div>
-
-                    <div class="flex flex-col">
-                        <label for="thana-city" class="text-gray-700 font-semibold mb-1">Thana / City</label>
-                        <input type="text" id="thana-city" name="thana" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" required>
-                    </div>
-
-                    <div class="flex flex-col">
-                        <label for="district" class="text-gray-700 font-semibold mb-1">District</label>
-                        <input type="text" id="district" name="district" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" required>
-                    </div>
-
-                    <button type="submit" class="bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors duration-200 w-full shadow-lg">
-                        Place Order
-                    </button>
-                </form>
-
+        <div class="grid md:grid-cols-2 gap-8 items-center">
+          <div class="space-y-6">
+            <h4 class="text-2xl font-bold heading">Get Exclusive Updates</h4>
+            <p class="subtle text-lg">Be the first to know about new product launches, special offers, and gaming events.</p>
+            <div class="space-y-4">
+              <div class="flex items-center space-x-3"><i class="fas fa-check-circle text-[var(--color-primary)]"></i><span class="heading">New product announcements</span></div>
+              <div class="flex items-center space-x-3"><i class="fas fa-check-circle text-[var(--color-primary)]"></i><span class="heading">Exclusive discount codes</span></div>
+              <div class="flex items-center space-x-3"><i class="fas fa-check-circle text-[var(--color-primary)]"></i><span class="heading">Gaming tips and tricks</span></div>
             </div>
+            <div class="flex flex-col sm:flex-row gap-4">
+              <a href="https://www.facebook.com/trustivagaming" target="_blank" class="btn-primary inline-flex items-center justify-center"><i class="fab fa-facebook mr-2"></i> Follow Page</a>
+              <a href="https://www.facebook.com/trustivagaming/posts" target="_blank" class="border-2 border-[var(--color-primary)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 inline-flex items-center justify-center"><i class="fas fa-newspaper mr-2"></i> View Posts</a>
+            </div>
+          </div>
+
+          <div class="glass-effect rounded-2xl p-6 text-center">
+            <div class="w-24 h-24 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 glow-effect">
+              <i class="fab fa-facebook text-white text-4xl"></i>
+            </div>
+            <h5 class="text-xl font-bold heading mb-2">Trustiva Gaming</h5>
+            <p class="subtle mb-4">Official Facebook Page</p>
+            <div class="flex justify-center space-x-6 text-sm subtle">
+              <span class="flex items-center"><i class="fas fa-thumbs-up mr-2"></i> 850+ Likes</span>
+              <span class="flex items-center"><i class="fas fa-users mr-2"></i> 920+ Followers</span>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
 
-    <!-- Floating Helpline Icon (Now visible on all pages) -->
-    <div id="helpline-icon" class="fixed bottom-6 right-6 z-50 bg-indigo-600 text-white p-4 rounded-full shadow-lg cursor-pointer transition-transform duration-200 hover:scale-110">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.15-.181 2.333-.284 3.541-.284h.002c1.208 0 2.391.103 3.541.284a9.73 9.73 0 0 1 2.508 1.485c.66.43 1.258 1.054 1.776 1.832.518.778.942 1.636 1.258 2.569l-.004 1.011a8.498 8.498 0 0 0-.004 1.011c-.316.933-.74 1.791-1.258 2.569a9.73 9.73 0 0 1-1.776 1.832c-.66.43-1.258 1.054-1.776 1.832-.518-.778-.942-1.636-1.258-2.569l-.004-1.011a8.498 8.498 0 0 0-.004-1.011c-.316-.933-.74-1.791-1.258-2.569a9.73 9.73 0 0 1-2.508-1.485c-1.15-.181-2.333-.284-3.541-.284h-.002c-1.208 0-2.391-.103-3.541-.284a9.73 9.73 0 0 1-2.508-1.485c-.66-.43-1.258-1.054-1.776-1.832-.518-.778-.942-1.636-1.258-2.569l.004-1.011a8.498 8.498 0 0 0 .004-1.011c.316-.933.74-1.791 1.258-2.569a9.73 9.73 0 0 1 1.776-1.832c.66-.43 1.258-1.054 1.776-1.832-.518-.778-.942-1.636-1.258-2.569l-.004-1.011a8.498 8.498 0 0 0-.004-1.011c-.316-.933-.74-1.791-1.258-2.569a9.73 9.73 0 0 1-2.508-1.485" />
-        </svg>
+    <!-- PRODUCT DETAILS -->
+    <div id="product-details-page" class="page" style="display:none;">
+      <button id="back-to-products" class="mb-6 surface px-4 py-2 hover:shadow transition flex items-center space-x-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        <span>Back to Products</span>
+      </button>
+
+      <div class="card-glass rounded-3xl shadow-2xl p-8 flex flex-col lg:flex-row items-start gap-8">
+        <!-- Image slider -->
+        <div class="lg:w-1/2 w-full">
+          <div class="relative w-full overflow-hidden rounded-2xl shadow-lg mb-4 surface">
+            <img id="main-product-image" src="/placeholder.svg" alt="Main Product Image" class="w-full h-96 object-cover"/>
+            <div class="absolute inset-y-0 left-0 flex items-center">
+              <button id="slider-prev" class="bg-black/50 text-white p-3 rounded-r-lg hover:bg-black/70 transition-opacity duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+              </button>
+            </div>
+            <div class="absolute inset-y-0 right-0 flex items-center">
+              <button id="slider-next" class="bg-black/50 text-white p-3 rounded-l-lg hover:bg-black/70 transition-opacity duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+          </div>
+          <div id="thumbnails-container" class="flex justify-center gap-2 mt-4"></div>
+        </div>
+
+        <!-- Details -->
+        <div class="lg:w-1/2 w-full">
+          <h2 id="details-title" class="text-4xl font-bold heading mb-3"></h2>
+          <p id="details-price" class="text-3xl font-semibold text-green-700 dark:text-green-400 mb-4"></p>
+          <p id="details-description" class="subtle mb-6 leading-relaxed"></p>
+          <button id="buy-now-button" class="btn-solid w-full shadow-lg transform hover:scale-105">
+            <i class="fas fa-shopping-cart mr-2"></i> Order Now
+          </button>
+          <div id="details-video-container" class="w-full mt-6">
+            <iframe id="details-video" class="rounded-xl shadow-md w-full h-64" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          </div>
+        </div>
+      </div>
+
+      <div id="more-details-section" class="mt-10 card-glass rounded-3xl shadow-lg p-8">
+        <h3 class="text-3xl font-bold heading mb-6">Product Overview</h3>
+        <p id="long-description" class="subtle leading-relaxed mb-8 text-lg"></p>
+        <div id="gallery-images-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+      </div>
     </div>
 
-    <!-- Helpline Modal (Initially Hidden) -->
-    <div id="helpline-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 relative">
-            <button id="close-helpline-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Need Help?</h2>
-            
-            <form id="helpline-form" class="space-y-4">
-                <div class="flex flex-col">
-                    <label for="helpline-name" class="text-gray-700 font-semibold mb-1">Your Name</label>
-                    <input type="text" id="helpline-name" name="name" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" required>
-                </div>
-                <div class="flex flex-col">
-                    <label for="helpline-phone" class="text-gray-700 font-semibold mb-1">Your Phone Number</label>
-                    <input type="tel" id="helpline-phone" name="phone" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" required>
-                </div>
-                <div class="flex flex-col">
-                    <label for="helpline-message" class="text-gray-700 font-semibold mb-1">Your Message</label>
-                    <textarea id="helpline-message" name="message" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200" required></textarea>
-                </div>
-                <button type="submit" class="bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition-colors duration-200 w-full shadow-lg">
-                    Send Message
+    <!-- SHIPPING -->
+    <div id="shipping-page" class="page" style="display:none;">
+      <button id="back-to-details" class="mb-6 surface px-4 py-2 hover:shadow transition flex items-center space-x-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        <span>Back to Product</span>
+      </button>
+
+      <div class="card-glass rounded-3xl shadow-2xl p-8">
+        <h2 class="text-4xl font-bold heading mb-8 text-center"><i class="fas fa-shipping-fast mr-3"></i> Order Information</h2>
+
+        <div id="order-summary" class="card-glass rounded-2xl p-6 mb-8">
+          <p class="text-xl font-bold heading mb-4">Order Summary</p>
+          <div class="flex justify-between items-center mb-2">
+            <span id="summary-product-title" class="subtle"></span>
+            <span id="summary-product-price" class="font-semibold text-green-700 dark:text-green-400"></span>
+          </div>
+          <div class="flex justify-between items-center mb-2">
+            <span class="subtle">Shipping Charge:</span>
+            <span id="shipping-charge" class="font-semibold text-yellow-700 dark:text-yellow-400">৳0</span>
+          </div>
+          <div class="border-t my-3" style="border-color:var(--color-border)"></div>
+          <div class="flex justify-between items-center text-xl font-bold heading">
+            <span>Total:</span>
+            <span id="total-price" class="text-green-700 dark:text-green-400"></span>
+          </div>
+        </div>
+
+        <form id="shipping-form" class="space-y-6">
+          <input type="hidden" id="product-title" name="product"/>
+          <input type="hidden" id="product-price" name="price"/>
+
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="flex flex-col">
+              <label for="customer-name" class="heading font-semibold mb-2"><i class="fas fa-user mr-2"></i>Full Name</label>
+              <input type="text" id="customer-name" name="name" class="field" placeholder="Enter your full name" required/>
+            </div>
+            <div class="flex flex-col">
+              <label for="customer-phone" class="heading font-semibold mb-2"><i class="fas fa-phone mr-2"></i>Phone Number</label>
+              <input type="tel" id="customer-phone" name="phone" class="field" placeholder="01XXXXXXXXX" required/>
+            </div>
+          </div>
+
+          <div class="flex flex-col">
+            <label for="home-address" class="heading font-semibold mb-2"><i class="fas fa-home mr-2"></i>Home Address</label>
+            <input type="text" id="home-address" name="address" class="field" placeholder="House/Flat, Road, Area" required/>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="flex flex-col">
+              <label for="thana-city" class="heading font-semibold mb-2"><i class="fas fa-map-marker-alt mr-2"></i>Thana / City</label>
+              <input type="text" id="thana-city" name="thana" class="field" placeholder="e.g., Dhanmondi, Gulshan" required/>
+            </div>
+            <div class="flex flex-col">
+              <label for="district" class="heading font-semibold mb-2"><i class="fas fa-map mr-2"></i>District</label>
+              <input type="text" id="district" name="district" class="field" placeholder="e.g., Dhaka, Chittagong" required/>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-solid w-full shadow-lg transform hover:scale-105">
+            <i class="fas fa-check-circle mr-2"></i> Confirm Order
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Helpline FAB -->
+  <div id="helpline-icon" class="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-full shadow-2xl cursor-pointer transition-all duration-300 hover:scale-110 pulse-animation">
+    <i class="fas fa-headset text-xl"></i>
+  </div>
+
+  <!-- Helpline Modal -->
+  <div id="helpline-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+    <div class="glass-effect rounded-3xl shadow-2xl w-full max-w-md p-8 relative">
+      <button id="close-helpline-modal" class="absolute top-4 right-4 text-gray-300 hover:text-white transition-colors duration-200">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <h2 class="text-3xl font-bold heading mb-6 text-center"><i class="fas fa-comments mr-3"></i>Need Help?</h2>
+      <form id="helpline-form" class="space-y-4">
+        <div class="flex flex-col">
+          <label for="helpline-name" class="heading font-semibold mb-2">Your Name</label>
+          <input type="text" id="helpline-name" name="name" class="field" placeholder="Enter your name" required/>
+        </div>
+        <div class="flex flex-col">
+          <label for="helpline-phone" class="heading font-semibold mb-2">Your Phone Number</label>
+          <input type="tel" id="helpline-phone" name="phone" class="field" placeholder="01XXXXXXXXX" required/>
+        </div>
+        <div class="flex flex-col">
+          <label for="helpline-message" class="heading font-semibold mb-2">Your Message</label>
+          <textarea id="helpline-message" name="message" rows="4" class="field" placeholder="How can we help you?" required></textarea>
+        </div>
+        <button type="submit" class="btn-solid w-full shadow-lg"><i class="fas fa-paper-plane mr-2"></i> Send Message</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const themeToggle=document.getElementById('theme-toggle');
+      const body=document.body;
+      const savedTheme=localStorage.getItem('theme')||'light';
+      body.className=savedTheme;
+      themeToggle.addEventListener('click',()=>{ if(body.classList.contains('dark')){body.className='light';localStorage.setItem('theme','light')}else{body.className='dark';localStorage.setItem('theme','dark')}});
+
+      // Config
+      const ORDERS_API_URL='https://sheetdb.io/api/v1/z35cwzop13xqp';
+      const HELPLINE_API_URL='https://sheetdb.io/api/v1/s6us0zf0tp74j';
+
+      const PRODUCTS=[
+        {id:'product1',name:'M01 Six-finger Gaming Trigger Control Mechanical button',price:820,
+          description:'Professional gaming trigger with mechanical buttons for enhanced mobile gaming experience. Features six-finger control for competitive advantage.',
+          longDescription:'The M01 Gaming Trigger revolutionizes mobile gaming with its advanced six-finger control system. Designed for serious gamers, it provides mechanical button feedback and ergonomic design for extended gaming sessions. Compatible with most smartphones and perfect for PUBG, Free Fire, and other competitive games.',
+          images:['assets/images/g21/main.jpg','assets/images/g21/g21_4.jpg','assets/images/g21/g21_3.png','assets/images/g21/g21_1.jpg'],
+          galleryImages:['assets/images/g21/g21_3.png','assets/images/g21/g21_2.PNG'],
+          videoUrl:'https://www.youtube.com/embed/dqrl1QOLqBA'
+        },
+        {id:'product2',name:'MEMO MB03 Mobile Joystick Controller',price:1890,
+          description:'Premium mobile game controller made of ABS material, designed for phones 6-11mm thick. CE and RoHS certified for quality assurance.',
+          longDescription:'The MEMO MB03 Mobile Joystick is engineered for professional mobile gaming. Constructed from high-quality ABS material, it supports phones with thickness of 6-11mm. The compact 48*46*44mm design includes USB-C cable and offers customization options. Certified by CE and RoHS standards, ensuring European safety compliance and market access.',
+          images:['assets/images/MB03/MB03_1.jpg','assets/images/MB03/MB03_2.jpg','assets/images/MB03/MB03_3.jpg','assets/images/MB03/MB03_4.jpg'],
+          galleryImages:['assets/images/MB03/MB03_3.jpg','assets/images/MB03/MB03_4.jpg'],
+          videoUrl:'https://www.youtube.com/embed/1B1P_wS_0Lg'
+        },
+        {id:'product3',name:'E9 Mobile Phone Game Joysticks Gamepad Trigger',price:240,
+          description:'Affordable gaming trigger solution for mobile gamers. Lightweight design with responsive triggers for improved gaming performance.',
+          longDescription:'The E9 Gaming Trigger offers excellent value for mobile gamers seeking enhanced control. Its lightweight design ensures comfortable extended gaming sessions while providing responsive trigger action. Perfect for casual and competitive mobile gaming across various game genres.',
+          images:['assets/images/E2/E2_1.jpg','assets/images/E2/E2_2.jpg','assets/images/E2/E2_3.jpg','assets/images/E2/E2_4.jpg'],
+          galleryImages:['assets/images/E2/E2_3.jpg','assets/images/E2/E2_4.jpg'],
+          videoUrl:'https://www.youtube.com/embed/n3oF59s04_s'
+        },
+        {id:'product4',name:'GT01 Gaming Trigger Pro',price:340,
+          description:'Advanced gaming trigger with enhanced grip and precision control. Designed for competitive mobile gaming with superior build quality.',
+          longDescription:'The GT01 Gaming Trigger Pro elevates your mobile gaming experience with its advanced engineering and superior build quality. Featuring enhanced grip technology and precision control mechanisms, it is designed specifically for competitive gamers who demand the best performance from their accessories.',
+          images:['assets/images/GT01/GT01_1.jpg','assets/images/GT01/GT01_2.jpg','assets/images/GT01/GT01_3.jpg','assets/images/GT01/GT01_4.jpg'],
+          galleryImages:['assets/images/GT01/GT01_3.jpg','assets/images/GT01/GT01_4.jpg'],
+          videoUrl:'https://www.youtube.com/embed/n3oF59s04_s'
+        }
+      ];
+
+      const HERO_SLIDER_IMAGES=[
+        'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&h=400&q=80',
+        'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&h=400&q=80',
+        'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?auto=format&fit=crop&w=1200&h=400&q=80'
+      ];
+
+      // DOM
+      const productListPage=document.getElementById('product-list-page');
+      const productDetailsPage=document.getElementById('product-details-page');
+      const shippingPage=document.getElementById('shipping-page');
+      const homeLogoBtn=document.getElementById('home-logo');
+      const backToProductsBtn=document.getElementById('back-to-products');
+      const backToDetailsBtn=document.getElementById('back-to-details');
+      const buyNowBtn=document.getElementById('buy-now-button');
+      const shippingForm=document.getElementById('shipping-form');
+      const thanaCityInput=document.getElementById('thana-city');
+      const districtInput=document.getElementById('district');
+      const shippingChargeSpan=document.getElementById('shipping-charge');
+      const totalPriceSpan=document.getElementById('total-price');
+
+      const mainProductImage=document.getElementById('main-product-image');
+      const sliderPrevBtn=document.getElementById('slider-prev');
+      const sliderNextBtn=document.getElementById('slider-next');
+      const thumbnailsContainer=document.getElementById('thumbnails-container');
+      const detailsTitle=document.getElementById('details-title');
+      const detailsPrice=document.getElementById('details-price');
+      const detailsDescription=document.getElementById('details-description');
+      const detailsVideo=document.getElementById('details-video');
+      const longDescription=document.getElementById('long-description');
+      const galleryImagesContainer=document.getElementById('gallery-images-container');
+
+      const helplineIcon=document.getElementById('helpline-icon');
+      const helplineModal=document.getElementById('helpline-modal');
+      const closeHelplineModalBtn=document.getElementById('close-helpline-modal');
+      const helplineForm=document.getElementById('helpline-form');
+
+      let currentProduct=null,currentShippingCost=0,currentImageIndex=0,heroSliderIndex=0,heroSliderInterval;
+
+      // Slider
+      const startHeroSlider=()=>{
+        const sliderContainer=document.getElementById('hero-slider-container');
+        sliderContainer.innerHTML=HERO_SLIDER_IMAGES.map((img,i)=>`<img src="${img}" class="slider-image absolute top-0 left-0 w-full h-full object-cover rounded-3xl ${i===0?'opacity-100':'opacity-0'}" alt="Hero ${i+1}">`).join('');
+        const images=sliderContainer.querySelectorAll('.slider-image');
+        heroSliderInterval=setInterval(()=>{
+          images[heroSliderIndex].classList.replace('opacity-100','opacity-0');
+          heroSliderIndex=(heroSliderIndex+1)%images.length;
+          images[heroSliderIndex].classList.replace('opacity-0','opacity-100');
+        },4000);
+      };
+
+      // Product grid
+      const renderProductList=()=>{
+        const grid=document.querySelector('#product-list-page > div.grid');
+        grid.innerHTML='';
+        PRODUCTS.forEach(p=>{
+          const card=document.createElement('div');
+          card.className='product-card glass-effect rounded-3xl shadow-2xl overflow-hidden cursor-pointer';
+          card.innerHTML=`
+            <div class="product-image relative overflow-hidden">
+              <img src="${p.images[0]}" alt="${p.name}" class="w-full h-64 object-cover transition-transform duration-500">
+              <div class="absolute top-4 right-4 badge px-3 py-1 text-sm font-bold shadow-lg">৳${p.price}</div>
+              <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end">
+                <div class="p-4 text-white w-full"><p class="text-sm font-medium">Click to view details</p></div>
+              </div>
+            </div>
+            <div class="p-6">
+              <h2 class="text-xl font-bold heading mb-3">${p.name}</h2>
+              <p class="subtle text-sm mb-4 leading-relaxed">${p.description.substring(0,120)}...</p>
+              <div class="flex justify-between items-center">
+                <span class="text-2xl font-bold text-green-700 dark:text-green-400">৳${p.price}</span>
+                <button class="buy-now-card-button btn-primary text-sm" data-product-id="${p.id}">
+                  <i class="fas fa-shopping-cart mr-1"></i> Order Now
                 </button>
-            </form>
-        </div>
-    </div>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-
-            // ======================================================================
-            // Configuration & Data
-            // ======================================================================
-            
-            // GOOGLE SHEET SETUP
-            // 1. Create a Google Sheet with two tabs: "Orders" and "Helpline".
-            // 2. Go to SheetDB.io (https://sheetdb.io/) and create a separate API for EACH tab.
-            // 3. Replace the placeholder URLs below with your actual API links.
-            const ORDERS_API_URL = 'https://sheetdb.io/api/v1/z35cwzop13xqp';
-            const HELPLINE_API_URL = 'https://sheetdb.io/api/v1/s6us0zf0tp74j';
-            
-            const PRODUCTS = [
-                {
-                    id: 'product1',
-                    name: 'M01 Six-finger Gaming Trigger Control Mechanical button',
-                    price: 820,
-                    description: 'Experience crystal-clear audio with our Luna Wireless Earbuds. Designed for comfort and durability, they offer a secure fit for all-day use. With seamless Bluetooth connectivity and a sleek charging case, your music and calls are always ready when you are.',
-                    longDescription: 'Our Luna Wireless Earbuds deliver a premium sound experience with powerful bass and crisp highs. The ergonomic design ensures they stay in place during your workouts or daily commute. The included charging case provides up to 24 hours of total playtime, and a quick 15-minute charge gives you 3 hours of listening. They are also IPX5 water-resistant, making them ideal for any weather.',
-                    images: [
-                        'assets/images/g21/main.jpg',
-                        'assets/images/g21/g21_4.jpg',
-                        'assets/images/g21/g21_3.png',
-                        'assets/images/g21/g21_1.jpg',
-                    ],
-                    galleryImages: [
-                        'assets/images/g21/g21_3.png',
-                        'assets/images/g21/g21_2.PNG',
-                    ],
-                    videoUrl: 'https://youtu.be/dqrl1QOLqBA?si=2nqiZ9hYhX8HMLvp' // Example YouTube video
-                },
-                {
-                    id: 'product2',
-                    name: 'MEMO MB03 Mobile Joystick Mobile Game Controller for Gaming Mobile Phones',
-                    price: 1890,
-                    description: 'The MEMO MB03 Mobile Joystick is a gaming trigger made of ABS material, designed for mobile phones with a thickness of 6-11mm. It features a compact size of 48*46*44mm and includes a power cable (USB with TPC). The product supports customization options like color, logo, and packaging. Certified by CE and RoHS, ensuring compliance with EU safety standards and providing market access assurance.',
-                    longDescription: 'The Astro Smartwatch is more than just a timepiece; it is your ultimate health and fitness companion. With over 100 sport modes, you can accurately track your activities and progress. The long-lasting battery keeps you going for days on a single charge. Receive call, text, and app notifications directly on your wrist, and control your music without touching your phone.',
-                    images: [
-                        'assets/images/MB03/MB03_1.jpg',
-                        'assets/images/MB03/MB03_2.jpg',
-                        'assets/images/MB03/MB03_3.jpg',
-                        'assets/images/MB03/MB03_4.jpg',
-                    ],
-                    galleryImages: [
-                        'assets/images/MB03/MB03_3.jpg',
-                        'assets/images/MB03/MB03_4.jpg',
-                    ],
-                    videoUrl: 'https://www.youtube.com/embed/1B1P_wS_0Lg' // Example YouTube video
-                },
-                {
-                    id: 'product3',
-                    name: 'E9 Mobile Phone Game Joysticks Gamepad Trigger',
-                    price: 240,
-                    description: 'Transform your workspace with the Zenith Comfort Chair. Its ergonomic design provides exceptional lumbar support and an adjustable headrest. The breathable mesh material keeps you cool, while the smooth-rolling casters allow for effortless movement.',
-                    longDescription: 'The Zenith Comfort Chair is engineered for maximum comfort and productivity. The adjustable features, including tilt tension, seat height, and armrest position, allow you to customize it to your body. Built with a sturdy steel frame and high-density foam, this chair is made to last. Say goodbye to back pain and hello to long, comfortable work sessions.',
-                    images: [
-                        'assets/images/E2/E2_1.jpg',
-                        'assets/images/E2/E2_2.jpg',
-                        'assets/images/E2/E2_3.jpg',
-                        'assets/images/E2/E2_4.jpg',
-                        
-                    ],
-                    galleryImages: [
-                        'assets/images/E2/E2_3.jpg',
-                        'assets/images/E2/E2_4.jpg',
-                    ],
-                    videoUrl: 'https://www.youtube.com/embed/n3oF59s04_s' // Example YouTube video
-                },
-                {
-                    id: 'product4',
-                    name: 'E9 Mobile Phone Game Joysticks Gamepad Trigger',
-                    price: 240,
-                    description: 'Transform your workspace with the Zenith Comfort Chair. Its ergonomic design provides exceptional lumbar support and an adjustable headrest. The breathable mesh material keeps you cool, while the smooth-rolling casters allow for effortless movement.',
-                    longDescription: 'The Zenith Comfort Chair is engineered for maximum comfort and productivity. The adjustable features, including tilt tension, seat height, and armrest position, allow you to customize it to your body. Built with a sturdy steel frame and high-density foam, this chair is made to last. Say goodbye to back pain and hello to long, comfortable work sessions.',
-                    images: [
-                        'assets/images/GT01/GT01_1.jpg',
-                        'assets/images/GT01/GT01_2.jpg',
-                        'assets/images/GT01/GT01_3.jpg',
-                        'assets/images/GT01/GT01_4.jpg',
-                        
-                    ],
-                    galleryImages: [
-                        'assets/images/GT01/GT01_3.jpg',
-                        'assets/images/GT01/GT01_4.jpg',
-                    ],
-                    videoUrl: 'https://www.youtube.com/embed/n3oF59s04_s' // Example YouTube video
-                },
-                {
-                    id: 'product5',
-                    name: 'E9 Mobile Phone Game Joysticks Gamepad Trigger',
-                    price: 240,
-                    description: 'Transform your workspace with the Zenith Comfort Chair. Its ergonomic design provides exceptional lumbar support and an adjustable headrest. The breathable mesh material keeps you cool, while the smooth-rolling casters allow for effortless movement.',
-                    longDescription: 'The Zenith Comfort Chair is engineered for maximum comfort and productivity. The adjustable features, including tilt tension, seat height, and armrest position, allow you to customize it to your body. Built with a sturdy steel frame and high-density foam, this chair is made to last. Say goodbye to back pain and hello to long, comfortable work sessions.',
-                    images: [
-                        'assets/images/E2/E2_1.jpg',
-                        'assets/images/E2/E2_2.jpg',
-                        'assets/images/E2/E2_3.jpg',
-                        'assets/images/E2/E2_4.jpg',
-                        
-                    ],
-                    galleryImages: [
-                        'assets/images/E2/E2_3.jpg',
-                        'assets/images/E2/E2_4.jpg',
-                    ],
-                    videoUrl: 'https://www.youtube.com/embed/n3oF59s04_s' // Example YouTube video
-                },
-            ];
-
-            const HERO_SLIDER_IMAGES = [
-                'https://placehold.co/1200x320/007bff/ffffff?text=Shop+Our+Latest+Collection',
-                'https://placehold.co/1200x320/28a745/ffffff?text=Quality+and+Style+in+Every+Item',
-                'https://placehold.co/1200x320/fd7e14/ffffff?text=Discover+Your+New+Favorite+Product'
-            ];
-
-            // ======================================================================
-            // DOM Elements
-            // ======================================================================
-            const app = document.getElementById('app');
-            const productListPage = document.getElementById('product-list-page');
-            const productDetailsPage = document.getElementById('product-details-page');
-            const shippingPage = document.getElementById('shipping-page');
-            const homeLogoBtn = document.getElementById('home-logo');
-            const backToProductsBtn = document.getElementById('back-to-products');
-            const backToDetailsBtn = document.getElementById('back-to-details');
-            const buyNowBtn = document.getElementById('buy-now-button');
-            const shippingForm = document.getElementById('shipping-form');
-            const thanaCityInput = document.getElementById('thana-city');
-            const districtInput = document.getElementById('district');
-            const shippingChargeSpan = document.getElementById('shipping-charge');
-            const totalPriceSpan = document.getElementById('total-price');
-
-            // Product Details Page Elements
-            const mainProductImage = document.getElementById('main-product-image');
-            const sliderPrevBtn = document.getElementById('slider-prev');
-            const sliderNextBtn = document.getElementById('slider-next');
-            const thumbnailsContainer = document.getElementById('thumbnails-container');
-            const detailsTitle = document.getElementById('details-title');
-            const detailsPrice = document.getElementById('details-price');
-            const detailsDescription = document.getElementById('details-description');
-            const detailsVideo = document.getElementById('details-video');
-            const longDescription = document.getElementById('long-description');
-            const galleryImagesContainer = document.getElementById('gallery-images-container');
-
-            // Helpline Modal Elements
-            const helplineIcon = document.getElementById('helpline-icon');
-            const helplineModal = document.getElementById('helpline-modal');
-            const closeHelplineModalBtn = document.getElementById('close-helpline-modal');
-            const helplineForm = document.getElementById('helpline-form');
-
-            let currentProduct = null;
-            let currentShippingCost = 0;
-            let currentImageIndex = 0;
-            let heroSliderIndex = 0;
-            let heroSliderInterval;
-
-            // ======================================================================
-            // Helper Functions
-            // ======================================================================
-
-            /**
-             * Initializes and starts the automatic hero slider.
-             */
-            const startHeroSlider = () => {
-                const sliderContainer = document.getElementById('hero-slider-container');
-                sliderContainer.innerHTML = HERO_SLIDER_IMAGES.map((img, index) => `
-                    <img src="${img}" class="slider-image absolute top-0 left-0 w-full h-full object-cover rounded-2xl ${index === 0 ? 'opacity-100' : 'opacity-0'}" alt="Hero Slide ${index + 1}">
-                `).join('');
-
-                const images = sliderContainer.querySelectorAll('.slider-image');
-                heroSliderInterval = setInterval(() => {
-                    images[heroSliderIndex].classList.remove('opacity-100');
-                    images[heroSliderIndex].classList.add('opacity-0');
-                    heroSliderIndex = (heroSliderIndex + 1) % images.length;
-                    images[heroSliderIndex].classList.remove('opacity-0');
-                    images[heroSliderIndex].classList.add('opacity-100');
-                }, 3000);
-            };
-
-            /**
-             * Renders the list of products on the product list page.
-             */
-            const renderProductList = () => {
-                const productGrid = document.querySelector('#product-list-page > div.grid');
-                productGrid.innerHTML = ''; // Clear previous content
-                PRODUCTS.forEach(product => {
-                    const card = document.createElement('div');
-                    card.className = 'bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-shadow duration-300 overflow-hidden';
-                    card.innerHTML = `
-                        <img src="${product.images[0]}" alt="${product.name}" class="w-full h-64 object-cover object-center rounded-t-2xl cursor-pointer">
-                        <div class="p-6">
-                            <h2 class="text-xl font-semibold text-gray-900 mb-2 cursor-pointer">${product.name}</h2>
-                            <p class="text-gray-600 text-base mb-4">${product.description.substring(0, 100)}...</p>
-                            <div class="flex justify-between items-center">
-                                <span class="text-xl font-bold text-indigo-600">৳${product.price}</span>
-                                <button class="buy-now-card-button bg-indigo-500 text-white font-semibold py-2 px-4 rounded-full text-sm hover:bg-indigo-600 transition-colors duration-200" data-product-id="${product.id}">Buy Now</button>
-                            </div>
-                        </div>
-                    `;
-                    // Add event listener to the card (excluding the button)
-                    card.querySelector('img').addEventListener('click', () => showProductDetails(product.id));
-                    card.querySelector('h2').addEventListener('click', () => showProductDetails(product.id));
-                    // Add event listener to the Buy Now button on the card
-                    card.querySelector('.buy-now-card-button').addEventListener('click', (e) => showShippingPage(e, product.id));
-
-                    productGrid.appendChild(card);
-                });
-            };
-
-            /**
-             * Updates the main product image and thumbnail highlight.
-             */
-            const updateMainImage = () => {
-                const images = currentProduct.images;
-                if (!images || images.length === 0) return;
-                mainProductImage.src = images[currentImageIndex];
-
-                // Update thumbnail styling
-                document.querySelectorAll('.thumbnail-image').forEach((thumb, index) => {
-                    if (index === currentImageIndex) {
-                        thumb.classList.add('ring-4', 'ring-indigo-500', 'ring-offset-2');
-                    } else {
-                        thumb.classList.remove('ring-4', 'ring-indigo-500', 'ring-offset-2');
-                    }
-                });
-            };
-
-            /**
-             * Navigates the image slider.
-             * @param {number} direction - 1 for next, -1 for previous.
-             */
-            const navigateSlider = (direction) => {
-                const images = currentProduct.images;
-                if (!images || images.length <= 1) return;
-                currentImageIndex = (currentImageIndex + direction + images.length) % images.length;
-                updateMainImage();
-            };
-
-            /**
-             * Shows the product details page and populates it with product info.
-             * @param {string} productId - The ID of the product to display.
-             */
-            const showProductDetails = (productId) => {
-                currentProduct = PRODUCTS.find(p => p.id === productId);
-                if (!currentProduct) return;
-                
-                // Reset image slider to first image
-                currentImageIndex = 0;
-                updateMainImage();
-
-                // Populate product details
-                detailsTitle.textContent = currentProduct.name;
-                detailsPrice.textContent = `৳${currentProduct.price}`;
-                detailsDescription.textContent = currentProduct.description;
-                detailsVideo.src = currentProduct.videoUrl;
-
-                // Populate more details section
-                longDescription.textContent = currentProduct.longDescription;
-                galleryImagesContainer.innerHTML = '';
-                currentProduct.galleryImages.forEach(src => {
-                    const img = document.createElement('img');
-                    img.src = src;
-                    img.alt = currentProduct.name + ' Gallery Image';
-                    img.className = 'w-full h-auto rounded-xl shadow-md object-cover';
-                    galleryImagesContainer.appendChild(img);
-                });
-
-                // Render thumbnails for the slider
-                thumbnailsContainer.innerHTML = '';
-                currentProduct.images.forEach((src, index) => {
-                    const thumb = document.createElement('img');
-                    thumb.src = src;
-                    thumb.alt = 'Thumbnail ' + (index + 1);
-                    thumb.className = 'thumbnail-image w-20 h-16 object-cover rounded-lg shadow-sm cursor-pointer transition-transform duration-200 hover:scale-110';
-                    thumb.addEventListener('click', () => {
-                        currentImageIndex = index;
-                        updateMainImage();
-                    });
-                    thumbnailsContainer.appendChild(thumb);
-                });
-                
-                // Ensure the first thumbnail is highlighted
-                updateMainImage();
-
-                // Show the details page and hide others
-                productListPage.style.display = 'none';
-                shippingPage.style.display = 'none';
-                productDetailsPage.style.display = 'block';
-            };
-            
-            /**
-             * Shows the shipping page and pre-populates the form.
-             * @param {Event} event - The click event.
-             * @param {string} [productId] - Optional product ID from the card button.
-             */
-            const showShippingPage = (event, productId = null) => {
-                if (productId) {
-                    currentProduct = PRODUCTS.find(p => p.id === productId);
-                }
-                
-                if (!currentProduct) return;
-
-                // Pre-populate form fields
-                document.getElementById('product-title').value = currentProduct.name;
-                document.getElementById('product-price').value = currentProduct.price;
-
-                // Pre-populate summary
-                document.getElementById('summary-product-title').textContent = currentProduct.name;
-                document.getElementById('summary-product-price').textContent = `৳${currentProduct.price}`;
-
-                // Recalculate shipping and total
-                calculateShipping();
-
-                // Show the shipping page and hide others
-                productDetailsPage.style.display = 'none';
-                productListPage.style.display = 'none';
-                shippingPage.style.display = 'block';
-            };
-
-            /**
-             * Calculates the shipping cost based on the district and updates the total.
-             */
-            const calculateShipping = () => {
-                if (!currentProduct) return;
-                
-                const shippingRate = thanaCityInput.value.toLowerCase().includes('dhaka') || districtInput.value.toLowerCase().includes('dhaka') ? 80 : 120;
-                currentShippingCost = shippingRate;
-
-                shippingChargeSpan.textContent = `৳${currentShippingCost}`;
-                const total = currentProduct.price + currentShippingCost;
-                totalPriceSpan.textContent = `৳${total}`;
-            };
-            
-            /**
-             * Handles form submission and sends order data to Google Sheet.
-             * @param {Event} event - The form submission event.
-             */
-            const placeOrder = async (event) => {
-                event.preventDefault();
-
-                if (ORDERS_API_URL.includes('YOUR_ORDERS_API_URL')) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Configuration Error',
-                        text: 'Please configure your SheetDB.io API URL for orders first.'
-                    });
-                    return;
-                }
-
-                const formData = new FormData(shippingForm);
-                const orderData = {
-                    product: formData.get('product'),
-                    name: formData.get('name'),
-                    phone: formData.get('phone'),
-                    address: formData.get('address'),
-                    thana: formData.get('thana'),
-                    district: formData.get('district'),
-                    price: formData.get('price'),
-                    shipping: currentShippingCost,
-                    total: parseInt(formData.get('price')) + currentShippingCost
-                };
-
-                try {
-                    const response = await fetch(ORDERS_API_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ data: orderData })
-                    });
-
-                    if (response.ok) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Order Placed!',
-                            text: 'We will confirm your order by phone call soon. Thank you for staying with us.'
-                        });
-                        shippingForm.reset();
-                    } else {
-                        const errorData = await response.json();
-                        console.error('API Error:', errorData);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Order Failed',
-                            text: 'Failed to place order. Please try again.'
-                        });
-                    }
-                } catch (error) {
-                    console.error('Fetch Error:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'An error occurred',
-                        text: 'An error occurred. Check the console for details.'
-                    });
-                }
-            };
-            
-            /**
-             * Handles form submission for the helpline form.
-             * @param {Event} event - The form submission event.
-             */
-            const sendMessage = async (event) => {
-                event.preventDefault();
-
-                if (HELPLINE_API_URL.includes('YOUR_HELPLINE_API_URL')) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Configuration Error',
-                        text: 'Please configure your SheetDB.io API URL for the helpline form first.'
-                    });
-                    return;
-                }
-
-                const formData = new FormData(helplineForm);
-                const messageData = {
-                    name: formData.get('name'),
-                    phone: formData.get('phone'),
-                    message: formData.get('message')
-                };
-
-                try {
-                    const response = await fetch(HELPLINE_API_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ data: messageData })
-                    });
-
-                    if (response.ok) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Message Sent!',
-                            text: 'Your message was sent successfully. We will contact you soon.'
-                        });
-                        helplineForm.reset();
-                        helplineModal.classList.add('hidden');
-                    } else {
-                        const errorData = await response.json();
-                        console.error('API Error:', errorData);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Failed to Send',
-                            text: 'Failed to send message. Please try again.'
-                        });
-                    }
-                } catch (error) {
-                    console.error('Fetch Error:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'An error occurred',
-                        text: 'An error occurred. Check the console for details.'
-                    });
-                }
-            };
-
-            // ======================================================================
-            // Event Listeners
-            // ======================================================================
-            homeLogoBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                productDetailsPage.style.display = 'none';
-                shippingPage.style.display = 'none';
-                productListPage.style.display = 'block';
-            });
-            backToProductsBtn.addEventListener('click', () => {
-                productDetailsPage.style.display = 'none';
-                productListPage.style.display = 'block';
-            });
-            backToDetailsBtn.addEventListener('click', () => {
-                shippingPage.style.display = 'none';
-                productDetailsPage.style.display = 'block';
-            });
-            buyNowBtn.addEventListener('click', showShippingPage);
-            shippingForm.addEventListener('submit', placeOrder);
-            thanaCityInput.addEventListener('input', calculateShipping);
-            districtInput.addEventListener('input', calculateShipping);
-            sliderNextBtn.addEventListener('click', () => navigateSlider(1));
-            sliderPrevBtn.addEventListener('click', () => navigateSlider(-1));
-
-            // Helpline Modal Event Listeners
-            helplineIcon.addEventListener('click', () => {
-                helplineModal.classList.remove('hidden');
-            });
-            closeHelplineModalBtn.addEventListener('click', () => {
-                helplineModal.classList.add('hidden');
-            });
-            helplineForm.addEventListener('submit', sendMessage);
-            
-            // Initial render and setup
-            renderProductList();
-            startHeroSlider();
+              </div>
+            </div>`;
+          card.querySelector('img').addEventListener('click',()=>showProductDetails(p.id));
+          card.querySelector('h2').addEventListener('click',()=>showProductDetails(p.id));
+          card.querySelector('.buy-now-card-button').addEventListener('click',(e)=>{e.stopPropagation();showShippingPage(e,p.id)});
+          grid.appendChild(card);
         });
-    </script>
+      };
 
+      const updateMainImage=()=>{
+        const images=currentProduct.images; if(!images||!images.length) return;
+        mainProductImage.src=images[currentImageIndex];
+        document.querySelectorAll('.thumbnail-image').forEach((t,i)=>{
+          if(i===currentImageIndex){t.classList.add('ring-4','ring-blue-500','ring-offset-2')}
+          else{t.classList.remove('ring-4','ring-blue-500','ring-offset-2')}
+        });
+      };
+
+      const navigateSlider=(dir)=>{
+        const images=currentProduct.images; if(!images||images.length<=1) return;
+        currentImageIndex=(currentImageIndex+dir+images.length)%images.length;
+        updateMainImage();
+      };
+
+      const showProductDetails=(id)=>{
+        currentProduct=PRODUCTS.find(p=>p.id===id); if(!currentProduct) return;
+        currentImageIndex=0; updateMainImage();
+
+        detailsTitle.textContent=currentProduct.name;
+        detailsPrice.textContent=`৳${currentProduct.price}`;
+        detailsDescription.textContent=currentProduct.description;
+        detailsVideo.src=currentProduct.videoUrl;
+
+        longDescription.textContent=currentProduct.longDescription;
+        galleryImagesContainer.innerHTML='';
+        currentProduct.galleryImages.forEach(src=>{
+          const img=document.createElement('img');
+          img.src=src; img.alt=currentProduct.name+' Gallery Image';
+          img.className='w-full h-auto rounded-2xl shadow-lg object-cover hover-lift';
+          galleryImagesContainer.appendChild(img);
+        });
+
+        thumbnailsContainer.innerHTML='';
+        currentProduct.images.forEach((src,i)=>{
+          const thumb=document.createElement('img');
+          thumb.src=src; thumb.alt='Thumbnail '+(i+1);
+          thumb.className='thumbnail-image w-20 h-16 object-cover rounded-lg shadow-sm cursor-pointer transition-all duration-200 hover:scale-110';
+          thumb.addEventListener('click',()=>{currentImageIndex=i;updateMainImage()});
+          thumbnailsContainer.appendChild(thumb);
+        });
+        updateMainImage();
+
+        productListPage.style.display='none';
+        shippingPage.style.display='none';
+        productDetailsPage.style.display='block';
+      };
+
+      const showShippingPage=(e,productId=null)=>{
+        if(productId){currentProduct=PRODUCTS.find(p=>p.id===productId)}
+        if(!currentProduct) return;
+
+        document.getElementById('product-title').value=currentProduct.name;
+        document.getElementById('product-price').value=currentProduct.price;
+        document.getElementById('summary-product-title').textContent=currentProduct.name;
+        document.getElementById('summary-product-price').textContent=`৳${currentProduct.price}`;
+        calculateShipping();
+
+        productDetailsPage.style.display='none';
+        productListPage.style.display='none';
+        shippingPage.style.display='block';
+      };
+
+      const calculateShipping=()=>{
+        if(!currentProduct) return;
+        const inDhaka = (thanaCityInput.value.toLowerCase().includes('dhaka')||districtInput.value.toLowerCase().includes('dhaka'));
+        currentShippingCost=inDhaka?80:120;
+        shippingChargeSpan.textContent=`৳${currentShippingCost}`;
+        totalPriceSpan.textContent=`৳${currentProduct.price+currentShippingCost}`;
+      };
+
+      const placeOrder=async(event)=>{
+        event.preventDefault();
+        if(ORDERS_API_URL.includes('YOUR_ORDERS_API_URL')){
+          Swal.fire({icon:'error',title:'Configuration Error',text:'Please configure your SheetDB.io API URL for orders first.'});return;
+        }
+        const formData=new FormData(shippingForm);
+        const orderData={
+          product:formData.get('product'),
+          name:formData.get('name'),
+          phone:formData.get('phone'),
+          address:formData.get('address'),
+          thana:formData.get('thana'),
+          district:formData.get('district'),
+          price:formData.get('price'),
+          shipping:currentShippingCost,
+          total:parseInt(formData.get('price'))+currentShippingCost,
+          timestamp:new Date().toLocaleString()
+        };
+        try{
+          const res=await fetch(ORDERS_API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:orderData})});
+          if(res.ok){
+            Swal.fire({icon:'success',title:'Order Placed Successfully!',text:'We will confirm your order by phone call within 24 hours. Thank you for choosing Trustiva!',confirmButtonColor:'#10B981'});
+            shippingForm.reset();
+            setTimeout(()=>{shippingPage.style.display='none';productListPage.style.display='block';},2000);
+          }else{
+            const err=await res.json();console.error('API Error:',err);
+            Swal.fire({icon:'error',title:'Order Failed',text:'Failed to place order. Please try again or contact support.'});
+          }
+        }catch(err){
+          console.error('Fetch Error:',err);
+          Swal.fire({icon:'error',title:'Connection Error',text:'Please check your internet connection and try again.'});
+        }
+      };
+
+      const sendMessage=async(event)=>{
+        event.preventDefault();
+        if(HELPLINE_API_URL.includes('YOUR_HELPLINE_API_URL')){
+          Swal.fire({icon:'error',title:'Configuration Error',text:'Please configure your SheetDB.io API URL for the helpline form first.'});return;
+        }
+        const formData=new FormData(helplineForm);
+        const messageData={name:formData.get('name'),phone:formData.get('phone'),message:formData.get('message'),timestamp:new Date().toLocaleString()};
+        try{
+          const res=await fetch(HELPLINE_API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:messageData})});
+          if(res.ok){
+            Swal.fire({icon:'success',title:'Message Sent!',text:'Your message was sent successfully. We will contact you soon.',confirmButtonColor:'#10B981'});
+            helplineForm.reset(); helplineModal.classList.add('hidden');
+          }else{
+            const err=await res.json();console.error('API Error:',err);
+            Swal.fire({icon:'error',title:'Failed to Send',text:'Failed to send message. Please try again.'});
+          }
+        }catch(err){
+          console.error('Fetch Error:',err);
+          Swal.fire({icon:'error',title:'Connection Error',text:'Please check your internet connection and try again.'});
+        }
+      };
+
+      // Events
+      document.getElementById('back-to-products').addEventListener('click',()=>{productDetailsPage.style.display='none';productListPage.style.display='block'});
+      document.getElementById('back-to-details').addEventListener('click',()=>{shippingPage.style.display='none';productDetailsPage.style.display='block'});
+      document.getElementById('buy-now-button').addEventListener('click',showShippingPage);
+      shippingForm.addEventListener('submit',placeOrder);
+      thanaCityInput.addEventListener('input',calculateShipping);
+      districtInput.addEventListener('input',calculateShipping);
+      document.getElementById('slider-next').addEventListener('click',()=>navigateSlider(1));
+      document.getElementById('slider-prev').addEventListener('click',()=>navigateSlider(-1));
+      document.getElementById('home-logo').addEventListener('click',(e)=>{e.preventDefault();productDetailsPage.style.display='none';shippingPage.style.display='none';productListPage.style.display='block'});
+
+      helplineIcon.addEventListener('click',()=>helplineModal.classList.remove('hidden'));
+      closeHelplineModalBtn.addEventListener('click',()=>helplineModal.classList.add('hidden'));
+      helplineForm.addEventListener('submit',sendMessage);
+
+      document.querySelectorAll('a[href^="#"]').forEach(a=>{
+        a.addEventListener('click',function(e){e.preventDefault();const t=document.querySelector(this.getAttribute('href'));if(t){t.scrollIntoView({behavior:'smooth',block:'start'})}});
+      });
+
+      // Init
+      const sliderContainer=document.getElementById('hero-slider-container'); sliderContainer.style.position='relative';
+      renderProductList(); startHeroSlider();
+    });
+  </script>
 </body>
 </html>
