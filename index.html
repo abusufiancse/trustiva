@@ -466,6 +466,42 @@
   </div>
 
   <script>
+    // ==== Image rotation helpers (ADD) ====
+// Convert images to {src, duration} objects.
+// Strings use 3000ms by default; GIFs use 6000ms unless overridden.
+const normalizeImageList = (imgs) =>
+  (imgs || []).map(it => {
+    if (typeof it === 'string') {
+      const isGif = it.toLowerCase().endsWith('.gif');
+      return { src: it, duration: isGif ? 6000 : 3000 };
+    }
+    const src = it.src || it.url || '';
+    const isGif = src.toLowerCase().endsWith('.gif');
+    const duration = typeof it.durationMs === 'number' ? it.durationMs : (isGif ? 6000 : 3000);
+    return { src, duration };
+  });
+
+// Start timed rotation on a single <img> element.
+const startCardImageRotation = (imgEl, images) => {
+  const seq = normalizeImageList(images);
+  if (seq.length <= 1 || !imgEl) return; // nothing to rotate
+
+  let i = 0;
+  // schedule next change using per-image duration
+  const scheduleNext = () => {
+    i = (i + 1) % seq.length;
+    imgEl.src = seq[i].src;
+    imgEl._rotTimer = setTimeout(scheduleNext, seq[i].duration);
+  };
+
+  // first delay uses duration of the first image
+  imgEl._rotTimer = setTimeout(scheduleNext, seq[0].duration);
+
+  // Pause on hover (optional, nice UX)
+  imgEl.addEventListener('mouseenter', () => { if (imgEl._rotTimer) { clearTimeout(imgEl._rotTimer); imgEl._rotTimer = null; } });
+  imgEl.addEventListener('mouseleave', () => { if (!imgEl._rotTimer) { imgEl._rotTimer = setTimeout(scheduleNext, seq[i].duration); } });
+};
+
   document.addEventListener('DOMContentLoaded', () => {
     const updateLogos = () => {
       const isDark = document.body.classList.contains('dark');
@@ -503,47 +539,102 @@
       const HELPLINE_API_URL='https://sheetdb.io/api/v1/s6us0zf0tp74j';
 
       // Products with optional originalPrice (MRP), price (offer), and stock
-      const PRODUCTS=[
-        {id:'product1',
-          name:'M01/G21 Six-finger Gaming Trigger Control Mechanical button',
-          originalPrice:950, price:820, inStock:true,
-          description:'Professional gaming trigger with mechanical buttons for enhanced mobile gaming experience. Features six-finger control for competitive advantage.',
-          longDescription:'The M01 Gaming Trigger revolutionizes mobile gaming with its advanced six-finger control system. Designed for serious gamers, it provides mechanical button feedback and ergonomic design for extended gaming sessions. Compatible with most smartphones and perfect for PUBG, Free Fire, and other competitive games.',
-          images:['assets/images/g21/main.jpg','assets/images/g21/g21_4.jpg','assets/images/g21/g21_3.png','assets/images/g21/g21_1.jpg'],
-          galleryImages:['assets/images/g21/g21_3.png','assets/images/g21/g21_2.PNG'],
-          videoUrl:'https://www.youtube.com/embed/dqrl1QOLqBA'
-        },
-        {id:'product2',
-          name:'E9 Mobile Phone Game Joysticks Gamepad Trigger',
-          originalPrice:350, price:199, inStock:true, /* stock out (false)*/
-          description:'Affordable gaming trigger solution for mobile gamers. Lightweight design with responsive triggers for improved gaming performance.',
-          longDescription:'The E9 Gaming Trigger offers excellent value for mobile gamers seeking enhanced control. Its lightweight design ensures comfortable extended gaming sessions while providing responsive trigger action. Perfect for casual and competitive mobile gaming across various game genres.',
-          images:['assets/images/E2/E2_1.jpg','assets/images/E2/E2_2.jpg','assets/images/E2/E2_3.jpg','assets/images/E2/E2_4.jpg'],
-          galleryImages:['assets/images/E2/E2_3.jpg','assets/images/E2/E2_4.jpg'],
-          videoUrl:'https://www.youtube.com/embed/n3oF59s04_s'
-        },
-
-        {id:'product3',
-          name:'MEMO MB03 Mobile Joystick Controller',
-          originalPrice:2190, price:1890, inStock:false,
-          description:'Premium mobile game controller made of ABS material, designed for phones 6-11mm thick. CE and RoHS certified for quality assurance.',
-          longDescription:'The MEMO MB03 Mobile Joystick is engineered for professional mobile gaming. Constructed from high-quality ABS material, it supports phones with thickness of 6-11mm. The compact 48*46*44mm design includes USB-C cable and offers customization options. Certified by CE and RoHS standards, ensuring European safety compliance and market access.',
-          images:['assets/images/MB03/MB03_1.jpg','assets/images/MB03/MB03_2.jpg','assets/images/MB03/MB03_3.jpg','assets/images/MB03/MB03_4.jpg'],
-          galleryImages:['assets/images/MB03/MB03_3.jpg','assets/images/MB03/MB03_4.jpg'],
-          videoUrl:'https://www.youtube.com/embed/1B1P_wS_0Lg'
-        },
-        {id:'product4',
-          name:'GT01 Gaming Trigger Pro',
-          /* no discount */
-        //   price:340, inStock:true,
-          originalPrice:320, price:239, inStock:true,
-          description:'Advanced gaming trigger with enhanced grip and precision control. Designed for competitive mobile gaming with superior build quality.',
-          longDescription:'The GT01 Gaming Trigger Pro elevates your mobile gaming experience with its advanced engineering and superior build quality. Featuring enhanced grip technology and precision control mechanisms, it is designed specifically for competitive gamers who demand the best performance from their accessories.',
-          images:['assets/images/GT01/GT01_1.jpg','assets/images/GT01/GT01_2.jpg','assets/images/GT01/GT01_3.jpg','assets/images/GT01/GT01_4.jpg'],
-          galleryImages:['assets/images/GT01/GT01_3.jpg','assets/images/GT01/GT01_4.jpg'],
-          videoUrl:'https://www.youtube.com/embed/n3oF59s04_s'
-        }
-      ];
+      // Products with separate image sets:
+      // - cardImages: rotates on product cards
+      // - detailImages: main slider in details page
+      // - instructionImages: "how to use" images shown in the lower gallery
+    const PRODUCTS = [
+      {
+        id: 'product1',
+        name: 'M01/G21 Six-finger Gaming Trigger Control Mechanical button',
+        originalPrice: 950, price: 820, inStock: true,
+        description: 'Professional gaming trigger with mechanical buttons for enhanced mobile gaming experience. Features six-finger control for competitive advantage.',
+        longDescription: 'The M01 Gaming Trigger revolutionizes mobile gaming with its advanced six-finger control system. Designed for serious gamers, it provides mechanical button feedback and ergonomic design for extended gaming sessions. Compatible with most smartphones and perfect for PUBG, Free Fire, and other competitive games.',
+        // Different images for card vs details:
+        cardImages: [
+          'assets/images/g21/g21_4.jpg',
+          'assets/images/g21/g21_1.jpg'
+        ],
+        detailImages: [
+          'assets/images/g21/main.jpg',
+          'assets/images/g21/g21_4.jpg',
+          'assets/images/g21/g21_3.png',
+          'assets/images/g21/g21_1.jpg'
+        ],
+        instructionImages: [
+          'assets/images/g21/g21_3.png',
+          'assets/images/g21/g21_2.PNG'
+        ],
+        videoUrl: 'https://www.youtube.com/embed/dqrl1QOLqBA'
+      },
+      {
+        id: 'product2',
+        name: 'E9 Mobile Phone Game Joysticks Gamepad Trigger',
+        originalPrice: 350, price: 199, inStock: true,
+        description: 'Affordable gaming trigger solution for mobile gamers. Lightweight design with responsive triggers for improved gaming performance.',
+        longDescription: 'The E9 Gaming Trigger offers excellent value for mobile gamers seeking enhanced control. Its lightweight design ensures comfortable extended gaming sessions while providing responsive trigger action. Perfect for casual and competitive mobile gaming across various game genres.',
+        cardImages: [
+          { src: 'assets/images/E2/teaser.gif', durationMs: 9000 },
+          'assets/images/E2/E2_2.jpg',
+          'assets/images/E2/E2_1.jpg'
+        ],
+        detailImages: [
+          'assets/images/E2/E2_1.jpg',
+          'assets/images/E2/E2_2.jpg',
+          'assets/images/E2/E2_3.jpg',
+          'assets/images/E2/E2_4.jpg'
+        ],
+        instructionImages: [
+          'assets/images/E2/E2_3.jpg',
+          'assets/images/E2/E2_4.jpg'
+        ],
+        videoUrl: 'https://www.youtube.com/embed/n3oF59s04_s'
+      },
+      {
+        id: 'product3',
+        name: 'MEMO MB03 Mobile Joystick Controller',
+        originalPrice: 2190, price: 1890, inStock: false,
+        description: 'Premium mobile game controller made of ABS material, designed for phones 6-11mm thick. CE and RoHS certified for quality assurance.',
+        longDescription: 'The MEMO MB03 Mobile Joystick is engineered for professional mobile gaming. Constructed from high-quality ABS material, it supports phones with thickness of 6-11mm...',
+        cardImages: [
+          'assets/images/MB03/MB03_2.jpg',
+          'assets/images/MB03/MB03_1.jpg'
+        ],
+        detailImages: [
+          'assets/images/MB03/MB03_1.jpg',
+          'assets/images/MB03/MB03_2.jpg',
+          'assets/images/MB03/MB03_3.jpg',
+          'assets/images/MB03/MB03_4.jpg'
+        ],
+        instructionImages: [
+          'assets/images/MB03/MB03_3.jpg',
+          'assets/images/MB03/MB03_4.jpg'
+        ],
+        videoUrl: 'https://www.youtube.com/embed/1B1P_wS_0Lg'
+      },
+      {
+        id: 'product4',
+        name: 'GT01 Gaming Trigger Pro',
+        originalPrice: 320, price: 239, inStock: true,
+        description: 'Advanced gaming trigger with enhanced grip and precision control. Designed for competitive mobile gaming with superior build quality.',
+        longDescription: 'The GT01 Gaming Trigger Pro elevates your mobile gaming experience with its advanced engineering and superior build quality...',
+        cardImages: [
+          'assets/images/GT01/GT01_2.jpg',
+          'assets/images/GT01/GT01_1.jpg'
+        ],
+        detailImages: [
+          'assets/images/GT01/GT01_1.jpg',
+          'assets/images/GT01/GT01_2.jpg',
+          'assets/images/GT01/GT01_3.jpg',
+          'assets/images/GT01/GT01_4.jpg'
+        ],
+        instructionImages: [
+          'assets/images/GT01/GT01_3.jpg',
+          'assets/images/GT01/GT01_4.jpg'
+        ],
+        videoUrl: 'https://www.youtube.com/embed/n3oF59s04_s'
+      }
+    ];
 
       const HERO_SLIDER_IMAGES=[
         'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&h=600&q=80',
@@ -603,64 +694,81 @@
       };
 
       // Product grid
-      const renderProductList=()=>{
-        const grid=document.querySelector('#product-list-page > div.grid');
-        grid.innerHTML='';
-        PRODUCTS.forEach(p=>{
-          const savings=getSavings(p.originalPrice, p.price);
-          const saveBadgeHTML = savings ? `<div class="absolute top-3 right-3 badge px-3 py-1 text-xs sm:text-sm font-bold shadow-lg">Save ${savings.percent}%</div>` : '';
-          const stockBadgeHTML = p.inStock ? '' : `<div class="absolute top-3 left-3 badge-red px-3 py-1 text-xs sm:text-sm font-bold shadow-lg">Stock Out</div>`;
+      const renderProductList = () => {
+      const grid = document.querySelector('#product-list-page > div.grid');
+      grid.innerHTML = '';
 
-          const card=document.createElement('div');
-          card.className='product-card glass-effect rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden';
-          card.innerHTML=`
-            <div class="product-image relative">
-              <img src="${p.images[0]}" alt="${p.name}" class="transition-transform duration-500">
-              ${saveBadgeHTML}
-              ${stockBadgeHTML}
-            </div>
-            <div class="p-4 sm:p-6">
-              <h2 class="text-lg sm:text-xl font-bold heading mb-2 sm:mb-3 cursor-pointer">${p.name}</h2>
-              <p class="subtle text-sm mb-4 leading-relaxed">${p.description.substring(0,120)}...</p>
-              <div class="flex items-center justify-between">
-                <div class="flex items-baseline gap-2">
-                  <span class="text-xl sm:text-2xl font-bold text-green-700 dark:text-green-400">${formatCurrency(p.price)}</span>
-                  ${p.originalPrice ? `<span class="subtle line-through text-sm sm:text-base">${formatCurrency(p.originalPrice)}</span>` : ''}
-                </div>
-                ${p.inStock
-                  ? `<button class="buy-now-card-button btn-primary text-sm" data-product-id="${p.id}">
-                       <i class="fas fa-shopping-cart mr-1"></i> Order Now
-                     </button>`
-                  : `<button class="btn-primary text-sm btn-disabled" disabled aria-disabled="true">Stock Out</button>`
-                }
+      PRODUCTS.forEach(p => {
+        const savings = getSavings(p.originalPrice, p.price);
+        const saveBadgeHTML = savings ? `<div class="absolute top-3 right-3 badge px-3 py-1 text-xs sm:text-sm font-bold shadow-lg">Save ${savings.percent}%</div>` : '';
+        const stockBadgeHTML = p.inStock ? '' : `<div class="absolute top-3 left-3 badge-red px-3 py-1 text-xs sm:text-sm font-bold shadow-lg">Stock Out</div>`;
+
+        // use cardImages first; fall back gracefully
+        const cardSeq = normalizeImageList(p.cardImages || p.images || p.detailImages || []);
+        const firstCardSrc = cardSeq[0]?.src || '';
+
+        const card = document.createElement('div');
+        card.className = 'product-card glass-effect rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden';
+        card.innerHTML = `
+          <div class="product-image relative">
+            <img src="${firstCardSrc}" alt="${p.name}" class="transition-transform duration-500">
+            ${saveBadgeHTML}
+            ${stockBadgeHTML}
+          </div>
+          <div class="p-4 sm:p-6">
+            <h2 class="text-lg sm:text-xl font-bold heading mb-2 sm:mb-3 cursor-pointer">${p.name}</h2>
+            <p class="subtle text-sm mb-4 leading-relaxed">${p.description.substring(0,120)}...</p>
+            <div class="flex items-center justify-between">
+              <div class="flex items-baseline gap-2">
+                <span class="text-xl sm:text-2xl font-bold text-green-700 dark:text-green-400">${formatCurrency(p.price)}</span>
+                ${p.originalPrice ? `<span class="subtle line-through text-sm sm:text-base">${formatCurrency(p.originalPrice)}</span>` : ''}
               </div>
-            </div>`;
+              ${p.inStock
+                ? `<button class="buy-now-card-button btn-primary text-sm" data-product-id="${p.id}">
+                    <i class="fas fa-shopping-cart mr-1"></i> Order Now
+                  </button>`
+                : `<button class="btn-primary text-sm btn-disabled" disabled aria-disabled="true">Stock Out</button>`
+              }
+            </div>
+          </div>`;
 
-          // open details by clicking image or title
-          card.querySelector('.product-image').addEventListener('click',()=>showProductDetails(p.id));
-          card.querySelector('h2').addEventListener('click',()=>showProductDetails(p.id));
-          const btn=card.querySelector('.buy-now-card-button');
-          if(btn){
-            btn.addEventListener('click',(e)=>{e.stopPropagation();showShippingPage(e,p.id)});
-          }
-          grid.appendChild(card);
-        });
-      };
+        // Start rotation with the cardImages list
+        const imgEl = card.querySelector('.product-image img');
+        startCardImageRotation(imgEl, p.cardImages || p.images || p.detailImages || []);
 
-      const updateMainImage=()=>{
-        const images=currentProduct.images; if(!images||!images.length) return;
-        mainProductImage.src=images[currentImageIndex];
-        document.querySelectorAll('.thumbnail-image').forEach((t,i)=>{
-          if(i===currentImageIndex){t.classList.add('ring-4','ring-blue-500','ring-offset-2')}
-          else{t.classList.remove('ring-4','ring-blue-500','ring-offset-2')}
-        });
-      };
+        // Open details by clicking image or title
+        card.querySelector('.product-image').addEventListener('click', () => showProductDetails(p.id));
+        card.querySelector('h2').addEventListener('click', () => showProductDetails(p.id));
 
-      const navigateSlider=(dir)=>{
-        const images=currentProduct.images; if(!images||images.length<=1) return;
-        currentImageIndex=(currentImageIndex+dir+images.length)%images.length;
-        updateMainImage();
-      };
+        // Buy button
+        const btn = card.querySelector('.buy-now-card-button');
+        if (btn) {
+          btn.addEventListener('click', (e) => { e.stopPropagation(); showShippingPage(e, p.id); });
+        }
+
+        grid.appendChild(card);
+      });
+    };
+
+
+    const updateMainImage = () => {
+      const imgs = currentProduct?.detailImages || currentProduct?.images || [];
+      if (!imgs.length) return;
+      mainProductImage.src = imgs[currentImageIndex];
+
+      document.querySelectorAll('.thumbnail-image').forEach((t, i) => {
+        if (i === currentImageIndex) t.classList.add('ring-4','ring-blue-500','ring-offset-2');
+        else t.classList.remove('ring-4','ring-blue-500','ring-offset-2');
+      });
+    };
+
+    const navigateSlider = (dir) => {
+      const imgs = currentProduct?.detailImages || currentProduct?.images || [];
+      if (imgs.length <= 1) return;
+      currentImageIndex = (currentImageIndex + dir + imgs.length) % imgs.length;
+      updateMainImage();
+    };
+
 
       const renderPriceInfo=(p)=>{
         const savings=getSavings(p.originalPrice, p.price);
@@ -674,52 +782,64 @@
         stockBlock.innerHTML = p.inStock ? '' : `<div class="text-red-600 dark:text-red-400 font-semibold mt-2">Currently out of stock</div>`;
       };
 
-      const showProductDetails=(id)=>{
-        currentProduct=PRODUCTS.find(p=>p.id===id); if(!currentProduct) return;
-        currentImageIndex=0;
+      const showProductDetails = (id) => {
+        currentProduct = PRODUCTS.find(p => p.id === id);
+        if (!currentProduct) return;
 
-        detailsTitle.textContent=currentProduct.name;
-        detailsDescription.textContent=currentProduct.description;
-        detailsVideo.src=currentProduct.videoUrl;
+        currentImageIndex = 0;
+
+        detailsTitle.textContent = currentProduct.name;
+        detailsDescription.textContent = currentProduct.description;
+        detailsVideo.src = currentProduct.videoUrl;
         renderPriceInfo(currentProduct);
 
-        // Gallery
-        galleryImagesContainer.innerHTML='';
-        currentProduct.galleryImages.forEach(src=>{
-          const img=document.createElement('img');
-          img.src=src; img.alt=currentProduct.name+' Gallery Image';
-          img.className='w-full h-60 sm:h-72 object-contain bg-white rounded-xl shadow-lg';
+        // ----- Main slider thumbnails use detailImages -----
+        const detailImgs = (currentProduct.detailImages && currentProduct.detailImages.length)
+          ? currentProduct.detailImages
+          : (currentProduct.images || []);
+
+        thumbnailsContainer.innerHTML = '';
+        detailImgs.forEach((src, i) => {
+          const thumb = document.createElement('img');
+          thumb.src = src;
+          thumb.alt = 'Thumbnail ' + (i + 1);
+          thumb.className = 'thumbnail-image thumb object-contain bg-white rounded-lg shadow-sm cursor-pointer transition-all duration-200 hover:scale-105';
+          thumb.addEventListener('click', () => { currentImageIndex = i; updateMainImage(); });
+          thumbnailsContainer.appendChild(thumb);
+        });
+        updateMainImage();
+
+        // ----- Bottom "how to use" / instructions gallery -----
+        const instructImgs = currentProduct.instructionImages
+          || currentProduct.galleryImages
+          || [];
+
+        galleryImagesContainer.innerHTML = '';
+        instructImgs.forEach(src => {
+          const img = document.createElement('img');
+          img.src = src;
+          img.alt = currentProduct.name + ' Instruction';
+          img.className = 'w-full h-60 sm:h-72 object-contain bg-white rounded-xl shadow-lg';
           galleryImagesContainer.appendChild(img);
         });
 
-        // Thumbs
-        thumbnailsContainer.innerHTML='';
-        currentProduct.images.forEach((src,i)=>{
-          const thumb=document.createElement('img');
-          thumb.src=src; thumb.alt='Thumbnail '+(i+1);
-          thumb.className='thumbnail-image thumb object-contain bg-white rounded-lg shadow-sm cursor-pointer transition-all duration-200 hover:scale-105';
-          thumb.addEventListener('click',()=>{currentImageIndex=i;updateMainImage()});
-          thumbnailsContainer.appendChild(thumb);
-        });
-
-        updateMainImage();
-
         // Buy button state
-        if(currentProduct.inStock){
-          buyNowBtn.disabled=false;
+        if (currentProduct.inStock) {
+          buyNowBtn.disabled = false;
           buyNowBtn.classList.remove('btn-disabled');
-          buyNowBtn.innerHTML='<i class="fas fa-shopping-cart mr-2"></i> Order Now';
-        }else{
-          buyNowBtn.disabled=true;
+          buyNowBtn.innerHTML = '<i class="fas fa-shopping-cart mr-2"></i> Order Now';
+        } else {
+          buyNowBtn.disabled = true;
           buyNowBtn.classList.add('btn-disabled');
-          buyNowBtn.innerHTML='Stock Out';
+          buyNowBtn.innerHTML = 'Stock Out';
         }
 
-        productListPage.style.display='none';
-        shippingPage.style.display='none';
-        productDetailsPage.style.display='block';
-        window.scrollTo({top:0,behavior:'smooth'});
+        productListPage.style.display = 'none';
+        shippingPage.style.display = 'none';
+        productDetailsPage.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       };
+
 
       const showShippingPage=(e,productId=null)=>{
         if(productId){currentProduct=PRODUCTS.find(p=>p.id===productId)}
