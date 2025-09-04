@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+  <!-- Preload your most important poster/video to warm the cache: -->
+  <!--   <link rel="preload" as="image" href="assets/images/E9/E9_1.jpg">
+         <link rel="preload" as="video" href="assets/images/E9/video/E9_video.mp4" type="video/mp4" crossorigin>  -->
+
   <meta charset="UTF-8"/>
   <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -470,6 +475,7 @@
     /* ===== Media rotation helpers (images + GIFs + videos) ===== */
     const isVideoExt = (src='') => /\.(mp4|webm|ogg)(\?.*)?$/i.test(src);
     const isGifExt   = (src='') => /\.gif(\?.*)?$/i.test(src);
+    const isMobile   = () => window.matchMedia('(max-width: 767px)').matches;
 
     // Normalize any input array (strings or objects) into a uniform list
     const normalizeMediaList = (items = []) =>
@@ -480,7 +486,8 @@
             type,
             src: it,
             duration: type === 'image' ? (isGifExt(it) ? 6000 : 3000) : null,
-            playFull: type === 'video'
+            playFull: type === 'video',
+            poster: undefined
           };
         }
         const src  = it.src || it.url || '';
@@ -491,7 +498,8 @@
           duration: typeof it.durationMs === 'number'
             ? it.durationMs
             : (type === 'image' ? (isGifExt(src) ? 6000 : 3000) : null),
-          playFull: it.playFull !== undefined ? it.playFull : (type === 'video')
+          playFull: it.playFull !== undefined ? it.playFull : (type === 'video'),
+          poster: it.poster
         };
       });
 
@@ -501,24 +509,54 @@
         .filter(m => m.type === 'image')
         .map(m => ({ src: m.src, duration: m.duration || 3000 }));
 
-    // Render a single media item into a slot
-    const renderMediaInto = (slotEl, item) => {
+    // Render a single media item into a slot, with "image-first" behavior for videos.
+    const renderMediaInto = (slotEl, item, fallbackPoster) => {
       slotEl.innerHTML = '';
       if (item.type === 'video') {
+        // show poster image immediately
+        const posterSrc = item.poster || fallbackPoster;
+        if (posterSrc) {
+          const img = document.createElement('img');
+          img.src = posterSrc;
+          img.alt = 'Product preview';
+          img.loading = 'lazy';
+          img.style.width = '100%';
+          img.style.height = '100%';
+          img.style.objectFit = 'contain';
+          img.style.objectPosition = 'center';
+          slotEl.appendChild(img);
+        }
+        // create video but don't block paint
         const v = document.createElement('video');
         v.className = 'product-video';
-        v.src = item.src;
+        v.setAttribute('preload', isMobile() ? 'metadata' : 'auto');
         v.muted = true;
         v.playsInline = true;
         v.autoplay = true;
         v.controls = false;
-        v.loop = false; // advance after full play
-        slotEl.appendChild(v);
+        v.loop = false;
+        if (posterSrc) v.setAttribute('poster', posterSrc);
+        // defer src attach to next tick (smoother)
+        requestAnimationFrame(() => { v.src = item.src; });
+
+        const swapIn = () => {
+          // replace poster with actual video node
+          slotEl.innerHTML = '';
+          slotEl.appendChild(v);
+          v.play?.().catch(()=>{});
+        };
+
+        // When ready enough to play, swap-in
+        v.addEventListener('canplay', swapIn, { once: true });
+        // Fallback in case canplay never fires fast
+        setTimeout(swapIn, 1500);
+
         return v;
       } else {
         const img = document.createElement('img');
         img.src = item.src;
         img.alt = 'Product media';
+        img.loading = 'lazy';
         img.style.width = '100%';
         img.style.height = '100%';
         img.style.objectFit = 'contain';
@@ -528,22 +566,36 @@
       }
     };
 
-    // Start timed rotation on a media slot
-    const startCardMediaRotation = (slotEl, items) => {
+    // Build a controller to start/stop rotation for a card slot
+    const createCardMediaController = (slotEl, items) => {
       const seq = normalizeMediaList(items);
-      if (!slotEl || seq.length === 0) return;
-      if (seq.length === 1) { renderMediaInto(slotEl, seq[0]); return; }
+      if (!slotEl || seq.length === 0) {
+        // nothing: keep empty
+        return { start(){}, stop(){} };
+      }
+      if (seq.length === 1) {
+        // Single item: render once, no timers to manage
+        const poster = seq.find(x => x.type==='image')?.src;
+        renderMediaInto(slotEl, seq[0], poster);
+        return { start(){}, stop(){} };
+      }
 
       let i = 0;
       let timer = null;
       let currentVideo = null;
+      let running = false;
+
+      const posterFallback = seq.find(x => x.type==='image')?.src;
 
       const clearPending = () => {
         if (timer) { clearTimeout(timer); timer = null; }
         if (currentVideo) {
-          currentVideo.pause();
-          currentVideo.src = '';
-          currentVideo.load();
+          currentVideo.pause?.();
+          // avoid holding resource when off-screen on mobile
+          if (isMobile()) {
+            currentVideo.removeAttribute('src');
+            currentVideo.load();
+          }
           currentVideo = null;
         }
       };
@@ -551,7 +603,7 @@
       const show = (idx) => {
         clearPending();
         const item = seq[idx];
-        const el = renderMediaInto(slotEl, item);
+        const el = renderMediaInto(slotEl, item, posterFallback);
 
         if (item.type === 'video') {
           currentVideo = el;
@@ -561,7 +613,7 @@
             if (advanced) return;
             advanced = true;
             i = (idx + 1) % seq.length;
-            show(i);
+            if (running) show(i);
           };
           currentVideo.onended = advance;
           timer = setTimeout(advance, fallbackMs);
@@ -570,21 +622,47 @@
           const wait = item.duration || 3000;
           timer = setTimeout(() => {
             i = (idx + 1) % seq.length;
-            show(i);
+            if (running) show(i);
           }, wait);
         }
       };
 
-      // Pause on hover (desktop)
-      slotEl.addEventListener('mouseenter', clearPending);
-      slotEl.addEventListener('mouseleave', () => show(i));
+      const start = () => {
+        if (running) return;
+        running = true;
+        show(i);
+      };
 
-      // Pause when tab hidden
+      const stop = () => {
+        running = false;
+        clearPending();
+        // leave last frame/poster visible
+      };
+
+      // Desktop: pause/resume on hover
+      if (!isMobile()) {
+        slotEl.addEventListener('mouseenter', stop);
+        slotEl.addEventListener('mouseleave', start);
+      }
+
+      // Page visibility
       document.addEventListener('visibilitychange', () => {
-        if (document.hidden) clearPending(); else show(i);
+        if (document.hidden) stop(); else if (!isMobile()) start();
       });
 
-      show(i);
+      return { start, stop };
+    };
+
+    // Observe an element; on mobile we will start media only when visible
+    const observeOnMobile = (el, controller) => {
+      if (!isMobile()) { controller.start(); return; }
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.4) controller.start();
+          else controller.stop();
+        });
+      }, { threshold: [0, 0.4, 0.6, 1] });
+      io.observe(el);
     };
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -614,7 +692,7 @@
         ? { amount: original - current, percent: Math.round(((original - current)/original)*100) }
         : null;
 
-      /* Config (replace with your own API endpoints if needed) */
+      /* Config */
       const ORDERS_API_URL='https://sheetdb.io/api/v1/z35cwzop13xqp';
       const HELPLINE_API_URL='https://sheetdb.io/api/v1/s6us0zf0tp74j';
 
@@ -627,7 +705,7 @@
           description: 'Professional gaming trigger with mechanical buttons for enhanced mobile gaming experience. Features six-finger control for competitive advantage.',
           longDescription: 'The M01 Gaming Trigger revolutionizes mobile gaming with its advanced six-finger control system. Designed for serious gamers, it provides mechanical button feedback and ergonomic design for extended gaming sessions. Compatible with most smartphones and perfect for PUBG, Free Fire, and other competitive games.',
           cardImages: [
-            { src: 'assets/images/g21/video/g21.mp4', type: 'video', playFull: true },
+            { src: 'assets/images/g21/video/g21.mp4', type: 'video', playFull: true, poster: 'assets/images/g21/g21_1.jpg' },
             'assets/images/g21/g21_4.jpg',
             'assets/images/g21/g21_1.jpg'
           ],
@@ -648,10 +726,9 @@
           name: 'E9 Mobile Phone Game Joysticks Gamepad Trigger',
           originalPrice: 350, price: 199, inStock: true,
           description: 'Affordable gaming trigger solution for mobile gamers. Lightweight design with responsive triggers for improved gaming performance.',
-          longDescription: 'The E9 Gaming Trigger offers excellent value for mobile gamers seeking enhanced control. Its lightweight design ensures comfortable extended gaming sessions while providing responsive trigger action. Perfect for casual and competitive mobile gaming across various game genres.',
+          longDescription: 'The E9 Gaming Trigger offers excellent value for mobile gamers seeking enhanced control. Its lightweight design ensures comfortable extended gaming sessions while providing responsive trigger action.',
           cardImages: [
-            { src: 'assets/images/E9/video/E9_video.mp4', type: 'video', playFull: true },
-            // { src: 'assets/images/E9/E9.gif', durationMs: 9000 },
+            { src: 'assets/images/E9/video/E9_video.mp4', type: 'video', playFull: true, poster: 'assets/images/E9/E9_1.jpg' },
             'assets/images/E9/E9_2.jpg',
             'assets/images/E9/E9_1.jpg'
           ],
@@ -672,9 +749,9 @@
           name: 'MEMO MB03 Mobile Joystick Controller',
           originalPrice: 2190, price: 1890, inStock: false,
           description: 'Premium mobile game controller made of ABS material, designed for phones 6-11mm thick. CE and RoHS certified for quality assurance.',
-          longDescription: 'The MEMO MB03 Mobile Joystick is engineered for professional mobile gaming. Constructed from high-quality ABS material, it supports phones with thickness of 6-11mm. The compact 48*46*44mm design includes USB-C cable and offers customization options. Certified by CE and RoHS standards.',
+          longDescription: 'The MEMO MB03 Mobile Joystick is engineered for professional mobile gaming. Constructed from high-quality ABS material, it supports phones with thickness of 6-11mm.',
           cardImages: [
-            { src: 'assets/images/MB03/video/MB03.mp4', type: 'video', playFull: true },
+            { src: 'assets/images/MB03/video/MB03.mp4', type: 'video', playFull: true, poster: 'assets/images/MB03/MB03_1.jpg' },
             'assets/images/MB03/MB03_2.jpg',
             'assets/images/MB03/MB03_1.jpg'
           ],
@@ -695,9 +772,9 @@
           name: 'GT01 Gaming Trigger Pro',
           originalPrice: 320, price: 239, inStock: true,
           description: 'Advanced gaming trigger with enhanced grip and precision control. Designed for competitive mobile gaming with superior build quality.',
-          longDescription: 'The GT01 Gaming Trigger Pro elevates your mobile gaming experience with its advanced engineering and superior build quality. Featuring enhanced grip technology and precision control mechanisms.',
+          longDescription: 'The GT01 Gaming Trigger Pro elevates your mobile gaming experience with its advanced engineering and superior build quality.',
           cardImages: [
-            { src: 'assets/images/GT01/video/GT01.mp4', type: 'video', playFull: true },
+            { src: 'assets/images/GT01/video/GT01.mp4', type: 'video', playFull: true, poster: 'assets/images/GT01/GT01_1.jpg' },
             'assets/images/GT01/GT01_2.jpg',
             'assets/images/GT01/GT01_1.jpg'
           ],
@@ -717,22 +794,22 @@
           id: 'product5',
           name: 'Dy66 Mobile Gaming Cooler',
           originalPrice: 550, price: 320, inStock: true,
-          description: 'The Dy66 Mobile Gaming Cooler is designed for gamers who demand peak performance without the worry of overheating. Built with advanced semiconductor cooling technology, it instantly drops your phone’s temperature, ensuring smooth and lag-free gaming even during long sessions.',
-          longDescription: '✅ Powerful Cooling Performance – Rapidly reduces phone heat to keep your device running at optimal speed. ✅ Ultra-Quiet Operation – Efficient cooling with minimal noise for an uninterrupted gaming experience. ✅ Universal Compatibility – Adjustable clip design fits most smartphones, making it perfect for Android and iOS devices. ✅ Compact & Portable – Lightweight design makes it easy to carry and attach whenever you need it. ✅ USB-Powered – Simple plug-and-play with USB connection for hassle-free use.',
+          description: 'Keep your device cool with semiconductor tech for smoother, longer gaming.',
+          longDescription: 'Rapid cooling • Quiet • Universal clip • Light & portable • USB powered.',
           cardImages: [
-            { src: 'assets/images/Dy66/video/Dy66.mp4', type: 'video', playFull: true },
-            'assets/images/GT01/GT01_2.jpg',
-            'assets/images/GT01/GT01_1.jpg'
+            { src: 'assets/images/Dy66/video/Dy66.mp4', type: 'video', playFull: true, poster: 'assets/images/Dy66/Dy66_1.jpg' },
+            'assets/images/Dy66/Dy66_2.jpg',
+            'assets/images/Dy66/Dy66_1.jpg'
           ],
           detailImages: [
-            'assets/images/GT01/GT01_1.jpg',
-            'assets/images/GT01/GT01_2.jpg',
-            'assets/images/GT01/GT01_3.jpg',
-            'assets/images/GT01/GT01_4.jpg'
+            'assets/images/Dy66/Dy66_1.jpg',
+            'assets/images/Dy66/Dy66_2.jpg',
+            'assets/images/Dy66/Dy66_3.jpg',
+            'assets/images/Dy66/Dy66_4.jpg'
           ],
           instructionImages: [
-            'assets/images/GT01/GT01_3.jpg',
-            'assets/images/GT01/GT01_4.jpg'
+            'assets/images/Dy66/Dy66_3.jpg',
+            'assets/images/Dy66/Dy66_4.jpg'
           ],
           videoUrl: 'https://www.youtube.com/embed/n3oF59s04_s'
         }
@@ -744,7 +821,7 @@
         'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?auto=format&fit=crop&w=1200&h=600&q=80'
       ];
 
-      /* DOM refs */
+      /* DOM refs (declare ONCE) */
       const productListPage=document.getElementById('product-list-page');
       const productDetailsPage=document.getElementById('product-details-page');
       const shippingPage=document.getElementById('shipping-page');
@@ -832,7 +909,8 @@
 
           // Start rotating media (images/GIFs/videos) in the card
           const slot = card.querySelector('.media-slot');
-          startCardMediaRotation(slot, p.cardImages || p.detailImages || []);
+          const controller = createCardMediaController(slot, p.cardImages || p.detailImages || []);
+          observeOnMobile(card, controller); // mobile lazy start; desktop starts immediately
 
           // Open details by clicking the media area or the title
           card.querySelector('.product-image').addEventListener('click', () => showProductDetails(p.id));
@@ -853,11 +931,6 @@
         const imgs = currentProduct?.detailImages || [];
         if (!imgs.length) return;
         mainProductImage.src = imgs[currentImageIndex];
-
-        document.querySelectorAll('.thumbnail-image').forEach((t, i) => {
-          if (i === currentImageIndex) t.classList.add('ring-4','ring-blue-500','ring-offset-2');
-          else t.classList.remove('ring-4','ring-blue-500','ring-offset-2');
-        });
       };
 
       const navigateSlider = (dir) => {
@@ -900,6 +973,7 @@
           const thumb = document.createElement('img');
           thumb.src = src;
           thumb.alt = 'Thumbnail ' + (i + 1);
+          thumb.loading = 'lazy';
           thumb.className = 'thumbnail-image thumb object-contain bg-white rounded-lg shadow-sm cursor-pointer transition-all duration-200 hover:scale-105';
           thumb.addEventListener('click', () => { currentImageIndex = i; updateMainImage(); });
           thumbnailsContainer.appendChild(thumb);
@@ -913,6 +987,7 @@
           const img = document.createElement('img');
           img.src = src;
           img.alt = currentProduct.name + ' Instruction';
+          img.loading = 'lazy';
           img.className = 'w-full h-60 sm:h-72 object-contain bg-white rounded-xl shadow-lg';
           galleryImagesContainer.appendChild(img);
         });
@@ -1026,14 +1101,14 @@
       };
 
       /* Events */
-      document.getElementById('back-to-products').addEventListener('click',()=>{productDetailsPage.style.display='none';productListPage.style.display='block'});
-      document.getElementById('back-to-details').addEventListener('click',()=>{shippingPage.style.display='none';productDetailsPage.style.display='block'});
-      document.getElementById('buy-now-button').addEventListener('click',showShippingPage);
+      backToProductsBtn.addEventListener('click',()=>{productDetailsPage.style.display='none';productListPage.style.display='block'});
+      backToDetailsBtn.addEventListener('click',()=>{shippingPage.style.display='none';productDetailsPage.style.display='block'});
+      buyNowBtn.addEventListener('click',showShippingPage);
       shippingForm.addEventListener('submit',placeOrder);
       thanaCityInput.addEventListener('input',calculateShipping);
       districtInput.addEventListener('input',calculateShipping);
-      document.getElementById('slider-next').addEventListener('click',()=>navigateSlider(1));
-      document.getElementById('slider-prev').addEventListener('click',()=>navigateSlider(-1));
+      sliderNextBtn.addEventListener('click',()=>navigateSlider(1));
+      sliderPrevBtn.addEventListener('click',()=>navigateSlider(-1));
 
       // Home logo (both)
       const goHome=(e)=>{e.preventDefault();productDetailsPage.style.display='none';shippingPage.style.display='none';productListPage.style.display='block';window.scrollTo({top:0,behavior:'smooth'})}
