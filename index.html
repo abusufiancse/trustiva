@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-  <!-- Preload your most important poster/video to warm the cache: -->
-  <!--   <link rel="preload" as="image" href="assets/images/E9/E9_1.jpg">
-         <link rel="preload" as="video" href="assets/images/E9/video/E9_video.mp4" type="video/mp4" crossorigin>  -->
+  <!-- Preload a critical poster + video to warm cache (optional; keep or edit paths) -->
+  <link rel="preload" as="image" href="assets/images/E9/E9_1.jpg">
+  <link rel="preload" as="video" href="assets/images/E9/video/E9_video.mp4" type="video/mp4" crossorigin>
 
   <meta charset="UTF-8"/>
   <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
@@ -56,7 +55,7 @@
     .product-card:hover{transform:translateY(-10px) scale(1.02);box-shadow:0 20px 40px rgba(0,0,0,.15);border-color:var(--color-primary)}
     .dark .product-card:hover{box-shadow:0 20px 40px rgba(34,197,94,.2)}
 
-    /* Product image wrapper: object-contain + clean surface */
+    /* Product image wrapper */
     .product-image{position:relative;overflow:hidden;border-radius:16px 16px 0 0;background:#fff}
     .dark .product-image{background:#0b0f1a}
     .product-image{height:14rem}
@@ -65,8 +64,8 @@
     .product-image img{transition:transform .6s ease;width:100%;height:100%;object-fit:contain;object-position:center}
     .product-card:hover .product-image img{transform:scale(1.08)}
 
-    /* Media slot (image/GIF/video) */
-    .product-image .media-slot { width:100%; height:100%; }
+    /* Media slot */
+    .product-image .media-slot { width:100%; height:100%; position:relative; }
     .product-video { width:100%; height:100%; object-fit:contain; object-position:center; background:#000; display:block; }
 
     /* Top bars */
@@ -118,6 +117,9 @@
     .hero-h{height:13rem}
     @media (min-width:640px){ .hero-h{height:18rem} }
     @media (min-width:1024px){ .hero-h{height:24rem} }
+
+    /* Tap-to-play overlay */
+    .tap-to-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.3);color:#fff;border:0}
   </style>
 </head>
 <body class="light">
@@ -133,6 +135,8 @@
             data-light="assets/images/logo/trustiva_logo.png"
             data-dark="assets/images/logo/trustiva_logo_dark.png"
             alt="Trustiva logo"
+            decoding="async"
+            fetchpriority="high"
           />
         </div>
         <span class="font-extrabold text-lg gradient-text">Trustiva</span>
@@ -178,6 +182,7 @@
               data-light="assets/images/logo/trustiva_logo.png"
               data-dark="assets/images/logo/trustiva_logo_dark.png"
               alt="Trustiva logo"
+              decoding="async"
             />
           </div>
           <h1 class="text-2xl font-bold gradient-text">Trustiva</h1>
@@ -265,7 +270,7 @@
 
         <div class="grid md:grid-cols-2 gap-6 sm:gap-8 items-center">
           <div class="aspect-video rounded-2xl overflow-hidden shadow-2xl">
-            <iframe width="100%" height="100%" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Trustiva Gaming Setup Tutorial" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="rounded-2xl"></iframe>
+            <iframe width="100%" height="100%" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Trustiva Gaming Setup Tutorial" frameborder="0" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="rounded-2xl" referrerpolicy="strict-origin-when-cross-origin"></iframe>
           </div>
           <div class="space-y-5 sm:space-y-6">
             <h4 class="text-xl sm:text-2xl font-bold heading">Subscribe for Latest Content</h4>
@@ -334,7 +339,7 @@
         <!-- Image slider -->
         <div class="lg:w-1/2 w-full">
           <div class="relative w-full overflow-hidden rounded-xl sm:rounded-2xl shadow-lg mb-3 sm:mb-4" style="background:#fff">
-            <img id="main-product-image" src="/placeholder.svg" alt="Main Product Image" class="details-main-img"/>
+            <img id="main-product-image" src="/placeholder.svg" alt="Main Product Image" class="details-main-img" decoding="async"/>
             <div class="absolute inset-y-0 left-0 flex items-center">
               <button id="slider-prev" class="bg-black/50 text-white p-2 sm:p-3 rounded-r-lg hover:bg-black/70 transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
@@ -363,7 +368,7 @@
             <i class="fas fa-shopping-cart mr-2"></i> Order Now
           </button>
           <div id="details-video-container" class="w-full mt-4 sm:mt-6">
-            <iframe id="details-video" class="rounded-xl shadow-md w-full h-52 sm:h-64" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <iframe id="details-video" class="rounded-xl shadow-md w-full h-52 sm:h-64" src="" title="Product video" frameborder="0" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
           </div>
         </div>
       </div>
@@ -472,199 +477,229 @@
   </div>
 
   <script>
-    /* ===== Media rotation helpers (images + GIFs + videos) ===== */
-    const isVideoExt = (src='') => /\.(mp4|webm|ogg)(\?.*)?$/i.test(src);
-    const isGifExt   = (src='') => /\.gif(\?.*)?$/i.test(src);
-    const isMobile   = () => window.matchMedia('(max-width: 767px)').matches;
+    /* =================== Media helpers: image-first, mobile-lazy, autoplay-safe =================== */
+    const isIOS = () =>
+      /iP(hone|od|ad)/.test(navigator.platform) ||
+      (/MacIntel/.test(navigator.platform) && navigator.maxTouchPoints > 1);
+    const isAndroid = () => /Android/i.test(navigator.userAgent);
+    const isMobile = () => isIOS() || isAndroid() || window.matchMedia('(max-width: 767px)').matches;
 
-    // Normalize any input array (strings or objects) into a uniform list
+    const isVideoExt = (src='') => /\.(mp4|m4v|webm|ogg)(\?.*)?$/i.test(src);
+    const isGifExt   = (src='') => /\.gif(\?.*)?$/i.test(src);
+
     const normalizeMediaList = (items = []) =>
       items.map(it => {
         if (typeof it === 'string') {
           const type = isVideoExt(it) ? 'video' : 'image';
-          return {
-            type,
-            src: it,
-            duration: type === 'image' ? (isGifExt(it) ? 6000 : 3000) : null,
-            playFull: type === 'video',
-            poster: undefined
-          };
+          return { type, src: it, duration: type === 'image' ? (isGifExt(it) ? 6000 : 3000) : null, playFull: type === 'video', poster: null };
         }
         const src  = it.src || it.url || '';
         const type = it.type || (isVideoExt(src) ? 'video' : 'image');
         return {
           type,
           src,
-          duration: typeof it.durationMs === 'number'
-            ? it.durationMs
-            : (type === 'image' ? (isGifExt(src) ? 6000 : 3000) : null),
+          duration: typeof it.durationMs === 'number' ? it.durationMs : (type === 'image' ? (isGifExt(src) ? 6000 : 3000) : null),
           playFull: it.playFull !== undefined ? it.playFull : (type === 'video'),
-          poster: it.poster
+          poster: it.poster || null,
         };
       });
 
-    // Image-only variant (used by thumbnails/legacy paths)
-    const normalizeImageList = (items = []) =>
-      normalizeMediaList(items)
-        .filter(m => m.type === 'image')
-        .map(m => ({ src: m.src, duration: m.duration || 3000 }));
+    const showTapOverlay = (slotEl, videoEl) => {
+      if (slotEl.querySelector('.tap-to-play')) return;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'tap-to-play';
+      btn.innerHTML = '<i class="fas fa-play text-3xl"></i>';
+      btn.addEventListener('click', () => {
+        btn.remove();
+        if (!videoEl.src && videoEl.dataset.src) { videoEl.src = videoEl.dataset.src; videoEl.load(); }
+        videoEl.play().catch(()=>{});
+      });
+      slotEl.appendChild(btn);
+    };
 
-    // Render a single media item into a slot, with "image-first" behavior for videos.
     const renderMediaInto = (slotEl, item, fallbackPoster) => {
       slotEl.innerHTML = '';
+
       if (item.type === 'video') {
-        // show poster image immediately
-        const posterSrc = item.poster || fallbackPoster;
+        const posterSrc = item.poster || fallbackPoster || '';
         if (posterSrc) {
           const img = document.createElement('img');
           img.src = posterSrc;
           img.alt = 'Product preview';
           img.loading = 'lazy';
+          img.decoding = 'async';
           img.style.width = '100%';
           img.style.height = '100%';
           img.style.objectFit = 'contain';
           img.style.objectPosition = 'center';
           slotEl.appendChild(img);
         }
-        // create video but don't block paint
+
         const v = document.createElement('video');
         v.className = 'product-video';
-        v.setAttribute('preload', isMobile() ? 'metadata' : 'auto');
-        v.muted = true;
-        v.playsInline = true;
-        v.autoplay = true;
-        v.controls = false;
-        v.loop = false;
+        v.setAttribute('muted',''); v.muted = true;               // must be before src (iOS)
+        v.setAttribute('playsinline',''); v.setAttribute('webkit-playsinline','');
+        v.autoplay = true; v.controls = false; v.loop = false;
+        v.preload = isMobile() ? 'metadata' : 'auto';
         if (posterSrc) v.setAttribute('poster', posterSrc);
-        // defer src attach to next tick (smoother)
-        requestAnimationFrame(() => { v.src = item.src; });
+
+        // On mobile we attach src only when visible (start()), so stage into dataset
+        if (isMobile()) { v.dataset.src = item.src; }
+        else { v.src = item.src; }
 
         const swapIn = () => {
-          // replace poster with actual video node
           slotEl.innerHTML = '';
           slotEl.appendChild(v);
-          v.play?.().catch(()=>{});
+          v.play?.().catch(() => { showTapOverlay(slotEl, v); });
         };
 
-        // When ready enough to play, swap-in
-        v.addEventListener('canplay', swapIn, { once: true });
-        // Fallback in case canplay never fires fast
-        setTimeout(swapIn, 1500);
-
+        if (!isMobile()) {
+          v.addEventListener('canplay', swapIn, { once: true });
+          setTimeout(swapIn, 1500); // backup
+        } else {
+          // On mobile, we will swapIn when observer decides to start and sets the src
+          // Keep poster visible until then.
+        }
         return v;
-      } else {
-        const img = document.createElement('img');
-        img.src = item.src;
-        img.alt = 'Product media';
-        img.loading = 'lazy';
-        img.style.width = '100%';
-        img.style.height = '100%';
-        img.style.objectFit = 'contain';
-        img.style.objectPosition = 'center';
-        slotEl.appendChild(img);
-        return img;
       }
+
+      // image
+      const img = document.createElement('img');
+      img.src = item.src;
+      img.alt = 'Product media';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'contain';
+      img.style.objectPosition = 'center';
+      slotEl.appendChild(img);
+      return img;
     };
 
-    // Build a controller to start/stop rotation for a card slot
+    // Controller per card slot
     const createCardMediaController = (slotEl, items) => {
       const seq = normalizeMediaList(items);
-      if (!slotEl || seq.length === 0) {
-        // nothing: keep empty
-        return { start(){}, stop(){} };
-      }
-      if (seq.length === 1) {
-        // Single item: render once, no timers to manage
-        const poster = seq.find(x => x.type==='image')?.src;
-        renderMediaInto(slotEl, seq[0], poster);
-        return { start(){}, stop(){} };
-      }
+      if (!slotEl || seq.length === 0) return { start(){}, stop(){} };
 
-      let i = 0;
+      let idx = 0;
       let timer = null;
       let currentVideo = null;
       let running = false;
-
-      const posterFallback = seq.find(x => x.type==='image')?.src;
+      const posterFallback = seq.find(x => x.type === 'image')?.src || null;
 
       const clearPending = () => {
         if (timer) { clearTimeout(timer); timer = null; }
         if (currentVideo) {
           currentVideo.pause?.();
-          // avoid holding resource when off-screen on mobile
-          if (isMobile()) {
-            currentVideo.removeAttribute('src');
-            currentVideo.load();
-          }
+          // conserve data on mobile when off-screen
+          if (isMobile()) { currentVideo.removeAttribute('src'); currentVideo.load(); }
+          const overlay = slotEl.querySelector('.tap-to-play');
+          if (overlay) overlay.remove();
           currentVideo = null;
         }
       };
 
-      const show = (idx) => {
+      const show = (i) => {
         clearPending();
-        const item = seq[idx];
+        const item = seq[i];
         const el = renderMediaInto(slotEl, item, posterFallback);
 
         if (item.type === 'video') {
           currentVideo = el;
-          const fallbackMs = item.duration || 12000;
-          let advanced = false;
-          const advance = () => {
-            if (advanced) return;
-            advanced = true;
-            i = (idx + 1) % seq.length;
-            if (running) show(i);
-          };
-          currentVideo.onended = advance;
-          timer = setTimeout(advance, fallbackMs);
-          currentVideo.play?.().catch(()=>{});
+
+          // Attach src and swap-in only when visible on mobile (start() called by observer)
+          if (isMobile()) {
+            if (!currentVideo.src && currentVideo.dataset.src) {
+              currentVideo.src = currentVideo.dataset.src;
+              currentVideo.load();
+              const swapNow = () => {
+                slotEl.innerHTML = '';
+                slotEl.appendChild(currentVideo);
+                currentVideo.play().catch(() => showTapOverlay(slotEl, currentVideo));
+              };
+              currentVideo.addEventListener('canplay', swapNow, { once: true });
+              setTimeout(swapNow, 1500);
+            }
+          } else {
+            const fallbackMs = item.duration || 12000;
+            let advanced = false;
+            const advance = () => { if (advanced) return; advanced = true; idx = (i + 1) % seq.length; if (running) show(idx); };
+            currentVideo.onended = advance;
+            timer = setTimeout(advance, fallbackMs);
+            currentVideo.play?.().catch(()=>{});
+          }
         } else {
           const wait = item.duration || 3000;
-          timer = setTimeout(() => {
-            i = (idx + 1) % seq.length;
-            if (running) show(i);
-          }, wait);
+          timer = setTimeout(() => { idx = (i + 1) % seq.length; if (running) show(idx); }, wait);
         }
       };
 
       const start = () => {
         if (running) return;
         running = true;
-        show(i);
+        show(idx);
       };
 
       const stop = () => {
         running = false;
         clearPending();
-        // leave last frame/poster visible
       };
 
-      // Desktop: pause/resume on hover
+      // Desktop nicety: pause rotation on hover
       if (!isMobile()) {
         slotEl.addEventListener('mouseenter', stop);
         slotEl.addEventListener('mouseleave', start);
       }
 
-      // Page visibility
       document.addEventListener('visibilitychange', () => {
         if (document.hidden) stop(); else if (!isMobile()) start();
       });
 
+      // Special case: single item
+      if (seq.length === 1) {
+        if (seq[0].type === 'video') {
+          // don't render immediately on mobile; wait for observer->start()
+          return { start, stop };
+        } else {
+          // single image: render once
+          renderMediaInto(slotEl, seq[0], posterFallback);
+          return { start(){}, stop(){} };
+        }
+      }
+
       return { start, stop };
     };
 
-    // Observe an element; on mobile we will start media only when visible
     const observeOnMobile = (el, controller) => {
       if (!isMobile()) { controller.start(); return; }
       const io = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.4) controller.start();
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.45) controller.start();
           else controller.stop();
         });
-      }, { threshold: [0, 0.4, 0.6, 1] });
+      }, { threshold: [0, .2, .45, .8, 1], rootMargin: '120px 0px' });
       io.observe(el);
     };
 
+    // Prefetch a few heavy assets after first paint to speed next views
+    const prewarmAssets = (products) => {
+      const top = products.slice(0, 3); // first few cards
+      const urls = [];
+      top.forEach(p => {
+        const firstImg = (p.cardImages || []).find(m => (typeof m==='string' && !isVideoExt(m)) || (m.type==='image'));
+        const firstVid = (p.cardImages || []).find(m => (typeof m==='string' && isVideoExt(m)) || (m.type==='video'));
+        if (firstImg) urls.push(typeof firstImg==='string' ? firstImg : firstImg.src);
+        if (firstVid) urls.push(typeof firstVid==='string' ? firstVid : firstVid.src);
+      });
+      const unique = [...new Set(urls)];
+      const go = () => unique.forEach(u => { try { fetch(u, { mode:'no-cors', cache:'force-cache' }); } catch(e){} });
+      if ('requestIdleCallback' in window) requestIdleCallback(go, { timeout: 2500 }); else setTimeout(go, 1500);
+    };
+  </script>
+
+  <script>
     document.addEventListener('DOMContentLoaded', () => {
       /* Theme & logo */
       const updateLogos = () => {
@@ -696,7 +731,7 @@
       const ORDERS_API_URL='https://sheetdb.io/api/v1/z35cwzop13xqp';
       const HELPLINE_API_URL='https://sheetdb.io/api/v1/s6us0zf0tp74j';
 
-      /* Products (separate media for card, details, instructions) */
+      /* Products */
       const PRODUCTS = [
         {
           id: 'product1',
@@ -815,7 +850,7 @@
         }
       ];
 
-      const HERO_SLIDER_IMAGES=[
+      const HERO_SLIDER_IMAGES = [
         'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&h=600&q=80',
         'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&h=600&q=80',
         'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?auto=format&fit=crop&w=1200&h=600&q=80'
@@ -861,7 +896,7 @@
       const startHeroSlider=()=>{
         const sliderContainer=document.getElementById('hero-slider-container');
         sliderContainer.innerHTML=HERO_SLIDER_IMAGES.map((img,i)=>`
-          <img src="${img}" class="slider-image absolute top-0 left-0 w-full h-full object-cover rounded-2xl sm:rounded-3xl ${i===0?'opacity-100':'opacity-0'}" alt="Hero ${i+1}">
+          <img src="${img}" class="slider-image absolute top-0 left-0 w-full h-full object-cover rounded-2xl sm:rounded-3xl ${i===0?'opacity-100':'opacity-0'}" alt="Hero ${i+1}" ${i===0?'fetchpriority="high"':''} decoding="async" loading="${i===0?'eager':'lazy'}">
         `).join('');
         sliderContainer.style.position='relative';
         const images=sliderContainer.querySelectorAll('.slider-image');
@@ -907,23 +942,24 @@
               </div>
             </div>`;
 
-          // Start rotating media (images/GIFs/videos) in the card
+          // Start media in the card
           const slot = card.querySelector('.media-slot');
           const controller = createCardMediaController(slot, p.cardImages || p.detailImages || []);
           observeOnMobile(card, controller); // mobile lazy start; desktop starts immediately
 
-          // Open details by clicking the media area or the title
+          // Open details
           card.querySelector('.product-image').addEventListener('click', () => showProductDetails(p.id));
           card.querySelector('h2').addEventListener('click', () => showProductDetails(p.id));
 
-          // Buy button
+          // Buy
           const btn = card.querySelector('.buy-now-card-button');
-          if (btn) {
-            btn.addEventListener('click', (e) => { e.stopPropagation(); showShippingPage(e, p.id); });
-          }
+          if (btn) btn.addEventListener('click', (e) => { e.stopPropagation(); showShippingPage(e, p.id); });
 
           grid.appendChild(card);
         });
+
+        // Warm up assets in idle time
+        prewarmAssets(PRODUCTS);
       };
 
       /* Details slider helpers */
@@ -932,7 +968,6 @@
         if (!imgs.length) return;
         mainProductImage.src = imgs[currentImageIndex];
       };
-
       const navigateSlider = (dir) => {
         const imgs = currentProduct?.detailImages || [];
         if (imgs.length <= 1) return;
@@ -966,7 +1001,7 @@
         longDescription.textContent = currentProduct.longDescription || '';
         renderPriceInfo(currentProduct);
 
-        // Thumbnails from detailImages
+        // Thumbnails
         const detailImgs = currentProduct.detailImages || [];
         thumbnailsContainer.innerHTML = '';
         detailImgs.forEach((src, i) => {
@@ -974,6 +1009,7 @@
           thumb.src = src;
           thumb.alt = 'Thumbnail ' + (i + 1);
           thumb.loading = 'lazy';
+          thumb.decoding = 'async';
           thumb.className = 'thumbnail-image thumb object-contain bg-white rounded-lg shadow-sm cursor-pointer transition-all duration-200 hover:scale-105';
           thumb.addEventListener('click', () => { currentImageIndex = i; updateMainImage(); });
           thumbnailsContainer.appendChild(thumb);
@@ -988,6 +1024,7 @@
           img.src = src;
           img.alt = currentProduct.name + ' Instruction';
           img.loading = 'lazy';
+          img.decoding = 'async';
           img.className = 'w-full h-60 sm:h-72 object-contain bg-white rounded-xl shadow-lg';
           galleryImagesContainer.appendChild(img);
         });
@@ -1110,7 +1147,7 @@
       sliderNextBtn.addEventListener('click',()=>navigateSlider(1));
       sliderPrevBtn.addEventListener('click',()=>navigateSlider(-1));
 
-      // Home logo (both)
+      // Home logo
       const goHome=(e)=>{e.preventDefault();productDetailsPage.style.display='none';shippingPage.style.display='none';productListPage.style.display='block';window.scrollTo({top:0,behavior:'smooth'})}
       homeLogoBtn?.addEventListener('click',goHome);
       homeLogoMobile?.addEventListener('click',goHome);
