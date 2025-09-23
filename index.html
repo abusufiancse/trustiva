@@ -91,7 +91,7 @@
         const phone = document.getElementById('customer-phone')?.value || '';
         const event_id = reuseEventID || _fx.uuid(); // use same ID used with fbq for de-dup
 
-        fetch('https://YOUR_WORKER_URL', {
+        fetch('https://trustiva.trustiva-shop.workers.dev', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({
