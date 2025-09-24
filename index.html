@@ -1673,7 +1673,8 @@
               contents: [{ id: currentProduct.id, quantity: 1, item_price: currentProduct.price }],
               content_ids: [currentProduct.id],
               content_type: 'product',
-              num_items: 1
+              num_items: 1,
+              order_id: _fx.uuid() // or your real order number
             };
             const eventID = _fx.track('Purchase', purchaseParams);
             sendCAPI('Purchase', purchaseParams, eventID);
