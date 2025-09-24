@@ -34,37 +34,47 @@
     })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
 
     // Your Pixel ID
+    // Pixel ID
     const FB_PIXEL_ID = '818335943873870';
 
-    // Init (advanced matching placeholders; we add phone later at checkout)
+    // Init (add phone later at checkout if you want AM)
     fbq('init', FB_PIXEL_ID, { ph: '' });
 
-    // First PageView (real page load)
+    // One real PageView on the first page load
     fbq('track', 'PageView');
 
-    // Helper: UUID, event wrapper (adds currency, returns eventID), SPA virtual page helper
-    window._fx = {
-      uuid() {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-          const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-          return v.toString(16);
-        });
-      },
-      track(name, params = {}) {
-        const eventID = this.uuid();
-        fbq('track', name, { currency: 'BDT', ...params }, { eventID });
-        return eventID;
-      },
-      trackCustom(name, params = {}) {
-        const eventID = this.uuid();
-        fbq('trackCustom', name, { currency: 'BDT', ...params }, { eventID });
-        return eventID;
-      },
-      pv(label) { // SPA virtual "pageview"
-        // fbq('track', 'PageView');
-        this.trackCustom('VirtualPage', { page: label });
-      }
-    };
+    // Helpers + SPA PageView with dedupe
+    (function () {
+      // private dedupe state
+      let lastPv = { label: null, t: 0 };
+
+      // expose helpers
+      window._fx = {
+        uuid() {
+          return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+            const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+          });
+        },
+        track(name, params = {}) {
+          const eventID = this.uuid();
+          fbq('track', name, { currency: 'BDT', ...params }, { eventID });
+          return eventID;
+        },
+        trackCustom(name, params = {}) {
+          const eventID = this.uuid();
+          fbq('trackCustom', name, { currency: 'BDT', ...params }, { eventID });
+          return eventID;
+        },
+        pv(label) {
+          const now = Date.now();
+          if (lastPv.label === label && now - lastPv.t < 3000) return; // dedupe 3s
+          lastPv = { label, t: now };
+          fbq('track', 'PageView');                      // SPA PV
+          this.trackCustom('VirtualPage', { page: label });
+        }
+      };
+    })();
 
     // Store UTM & fbclid for better attribution + create first-party _fbp cookie
     (function () {
