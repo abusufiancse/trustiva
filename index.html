@@ -61,7 +61,7 @@
         return eventID;
       },
       pv(label) { // SPA virtual "pageview"
-        fbq('track', 'PageView');
+        // fbq('track', 'PageView');
         this.trackCustom('VirtualPage', { page: label });
       }
     };
